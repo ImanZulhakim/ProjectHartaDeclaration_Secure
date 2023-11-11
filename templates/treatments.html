@@ -1,0 +1,152 @@
+<!-- treatments.html -->
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block content %}
+<link href="{{url_for('static', filename = 'css/bootstrap.min.css')}}" rel="stylesheet">
+<div class="container">
+    <div class="well text-center">
+        <h1>Treatment Record Management</h1>
+    </div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-12">
+                <h2>Treatments List
+                <button type="button" class="btn btn-success pull-right" data-toggle="modal"
+                data-target="#myModal">Add Treatment</button>
+                </h2>
+
+                {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-success" role="alert">
+                                <button type="button" class="close" data-dismiss="alert" aria-label="close">
+                                    <span aria-hidden="true">x</span>
+                                </button>
+                                {{ message }}
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                {% endwith %}
+
+                <table class="table table-striped">
+                    <tr>
+                        <th>TreatmentID</th>
+                        <th>Name</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th>Price</th>
+                        <th>Action</th>
+                    </tr>
+                    {% for row in treatments %}
+                        <tr>
+                            <td>{{ row[0] }}</td>
+                            <td>{{ row[1] }}</td>
+                            <td>{{ row[2] }}</td>
+                            <td>{{ row[3] }}</td>
+                            <td>RM {{ row[4] }}</td>
+                         <td>
+                            <a href="/update_treatment/{{ row[0] }}" class="btn btn-warning btn-xs" data-toggle="modal" data-target="#modaledit{{ row[0] }}">Edit</a>
+                            <form action="{{ url_for('delete_treatment', treatment_id=row[0]) }}" method="POST" style="display: inline;">
+                                <input type="submit" value="Delete" class="btn btn-danger btn-xs" onclick="return confirm('Are You Sure For Delete?')">
+                            </form>
+                        </td>
+                        </tr>
+                    {% endfor %}
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Edit -->
+    {% for row in treatments %}
+    <div id="modaledit{{ row[0] }}" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">x</button>
+                    <h4 class="modal-title">Update Information</h4>
+                </div>
+                <div class="modal-body">
+                    <form action="{{ url_for('update_treatment') }}" method="POST">
+                        <div class="form-group">
+                            <label>Name:</label>
+                            <input type="hidden" name="treatment_id" value="{{ row[0] }}">
+                            <input type="text" class="form-control" name="treatment_name" value="{{ row[1] }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Category:</label>
+                            <select class="form-control" name="category" required>
+                                <option value="Massage" {% if row[2] == "Massage" %}selected{% endif %}>Massage</option>
+                                <option value="Facial" {% if row[2] == "Facial" %}selected{% endif %}>Facial</option>
+                                <option value="Reflexology" {% if row[2] == "Reflexology" %}selected{% endif %}>Reflexology</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Description:</label>
+                            <input type="text" class="form-control" name="description" value="{{ row[3] }}">
+                        </div>
+                        <div class="form-group">
+                            <label>Price:</label>
+                            <input type="text" class="form-control" name="price" value="{{ row[4] }}">
+                        </div>
+
+                        <div class="form-group">
+                            <button class="btn btn-primary" type="submit">Update</button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+    <!-- Modal -->
+
+    <div id="myModal" class="modal fade" role="dialog">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                <h4 class="modal-title">Please Insert Data</h4>
+            </div>
+            <div class="modal-body">
+                <form action="{{ url_for('insert_treatment') }}" method="POST">
+                    <div class="form-group">
+                        <label>Name:</label>
+                        <input type="text" class="form-control" name="treatment_name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Category:</label>
+                        <select class="form-control" name="category" required>
+                            <option value="Massage">Massage</option>
+                            <option value="Facial">Facial</option>
+                            <option value="Reflexology">Reflexology</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Description:</label>
+                        <input type="text" class="form-control" name="description" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Price:</label>
+                        <input type="text" class="form-control" name="price" required>
+                    </div>
+                    <div class="form-group">
+                        <button class="btn btn-primary" type="submit">Submit</button>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+</div>
+<script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+<script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+
+{% endblock %}
