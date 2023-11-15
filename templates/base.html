@@ -12,9 +12,9 @@
 <body>
     <div class="sidebar">
         <div class="logo-details">
-            <i class='bx bxl-stripe'></i>
-            <div class="logo_name">SPARS</div>
-            <i class='bx bx-menu' id="btn"></i>
+
+                <div class="logo_name">HARTIFY</div>
+                <i class='bx bx-menu' id="btn"></i>
         </div>
         <ul class="nav-list">
 
@@ -26,19 +26,19 @@
                 <span class="tooltip">Dashboard</span>
             </li>
             <li>
-                <a href="{{ url_for('customers') }}" id="customer-link">
-                    <i class='bx bx-user'></i>
-                    <span class="links_name">Manage Customer</span>
+                <a href="{{ url_for('harta') }}" id="customer-link">
+                    <i class='bx bxs-institution' ></i>
+                    <span class="links_name">Isytihar Harta</span>
                 </a>
-                <span class="tooltip">Customer</span>
+                <span class="tooltip">Isytihar Harta</span>
             </li>
-            <li>
-                <a  href="{{ url_for('treatments') }}" id="customer-link">
-                    <i class='bx bxs-user-account'></i>
-                    <span class="links_name">Manage Treatment</span>
-                </a>
-                <span class="tooltip">Treatment</span>
-            </li>
+{#            <li>#}
+{#                <a  href="{{ url_for('treatments') }}" id="customer-link">#}
+{#                    <i class='bx bxs-user-account'></i>#}
+{#                    <span class="links_name">Manage Treatment</span>#}
+{#                </a>#}
+{#                <span class="tooltip">Treatment</span>#}
+{#            </li>#}
 
             <li class="profile">
                 <div class="profile-details">
@@ -58,5 +58,22 @@
         {% endblock %}
     </div>
     <script src="../static/js/scripts.js"></script>
+     <script>
+      let sidebar = document.querySelector(".sidebar");
+      let closeBtn = document.querySelector("#btn");
+      closeBtn.addEventListener("click", ()=>{
+        sidebar.classList.toggle("open");
+        menuBtnChange();//calling the function(optional)
+      });
+
+      // following are the code to change sidebar button(optional)
+      function menuBtnChange() {
+       if(sidebar.classList.contains("open")){
+         closeBtn.classList.replace("bx-menu", "bx-menu-alt-right");//replacing the icons class
+       }else {
+         closeBtn.classList.replace("bx-menu-alt-right","bx-menu");//replacing the icons class
+       }
+      }
+      </script>
 </body>
 </html>
