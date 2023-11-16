@@ -6,6 +6,15 @@
   box-sizing: border-box;
   font-family: "Poppins" , sans-serif;
 }
+
+.myclass table {
+    table-layout: auto !important;
+}
+
+.myclass th, .myclass td, .myclass thead th, .myclass tbody td, .myclass tfoot td, .myclass tfoot th {
+    width: auto !important;
+}
+
 .sidebar{
   position: fixed;
   left: 0;

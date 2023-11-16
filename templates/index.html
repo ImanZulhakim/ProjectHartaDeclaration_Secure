@@ -18,47 +18,26 @@
 
     <div class="container">
         <div class="row">
-            <div class="col-md-12">
-                <h2>Customers List</h2>
+            <div class="myclass">
+                <h2>Senarai Harta</h2>
 
                 <table class="table table-dark table-hover">
                     <tr>
-                        <th class="customer-name">Customer Name</th>
-                        <th class="customer-taken">Treatment Taken</th>
-                        <th class="customer-phone">Phone</th>
+                        <th class="bil">Bil</th>
+                        <th class="tahun">Tahun</th>
+                        <th class="failNo">No. Fail</th>
+                        <th class="pasangan">Nama Pasangan</th>
+                        <th class="jenis">Jenis Perisytiharan Harta</th>
+                        <th class="kategori">Kategori Perisytiharan Harta</th>
                     </tr>
-                    {% for row in customers %}
+                    {% for row in harta %}
                         <tr>
-                            <td class="customer-name">{{ row[1] }}</td>
-                            <td class="customer-taken">{{ row[2] }}</td>
-                            <td class="customer-phone">{{ row[3] }}</td>
-
-
-                        </tr>
-                    {% endfor %}
-                </table>
-            </div>
-        </div>
-    </div>
-
-
-    <div class="container">
-        <div class="row">
-            <div class="col-md-12">
-                <h2>Treatments List</h2>
-                <table class="table table-dark table-hover ">
-                    <tr>
-                        <th class="treatment-name">Treatment Name</th>
-                        <th class="treatment-category">Category</th>
-                        <th class="treatment-description">Description</th>
-                        <th class="treatment-price">Price</th>
-                    </tr>
-                    {% for row in treatments %}
-                        <tr>
-                            <td class="treatment-name">{{ row[1] }}</td>
-                            <td class="treatment-category">{{ row[2] }}</td>
-                            <td class="treatment-description">{{ row[3] }}</td>
-                            <td class="treatment-price">RM {{ row[4] }}</td>
+                            <td class="bil">{{ row[0] }}</td>
+                            <td class="tahun">{{ row[1] }}</td>
+                            <td class="failNo">{{ row[2] }}</td>
+                            <td class="pasangan">{{ row[3] }}</td>
+                            <td class="jenis">{{ row[4] }}</td>
+                            <td class="kategori">{{ row[5] }}</td>
 
 
                         </tr>
