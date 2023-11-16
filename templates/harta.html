@@ -2,24 +2,34 @@
 {% extends "base.html" %}
 
 {% block content %}
+<style>
+    body {
+        background-image: url("{{url_for('static', filename='images/background.jpg')}}");
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+    }
+</style>
 
-    <!-- Include SweetAlert CSS -->
+<!-- Include SweetAlert CSS -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.css">
 <!-- ... (other CSS imports) -->
 
 <link href="{{url_for('static', filename = 'css/bootstrap.min.css')}}" rel="stylesheet">
+
+<section class="home-section">
 <div class="container">
-    <div class="well text-center">
+    <div class="text-center">
         <h1>Perisytiharan Harta</h1>
     </div>
     <div class="container">
         <div class="row">
-            <div class="col-md-12">
+            <div class="well col-md-12">
                 <h2>Senarai Harta
                 <button type="button" class="btn btn-success pull-right" data-toggle="modal" 
                 data-target="#myModal">Tambah</button>
                 </h2>
-{#            fdfodfhs#}
+
                 {% with messages = get_flashed_messages() %}
                     {% if messages %}
                         {% for message in messages %}
@@ -61,6 +71,8 @@
             </div>
         </div>
     </div>
+</div>
+</section>
 
     <!-- Modal Edit -->
     {% for row in harta %}
@@ -78,22 +90,30 @@
                         </div>
                         <div class="form-group">
                             <label>Tahun:</label>
-                            <input type="text" class="form-control" name="tahun" value="{{ row[1] }}">
+                            <label>
+                                <input type="text" class="form-control" name="tahun" value="{{ row[1] }}">
+                            </label>
                         </div>
                         <div class="form-group">
                             <label>No. Fail:</label>
-                            <input type="text" class="form-control" name="failNo" value="{{ row[2] }}">
+                            <label>
+                                <input type="text" class="form-control" name="failNo" value="{{ row[2] }}">
+                            </label>
                         </div>
                         <div class="form-group">
                             <label>Nama Pasangan:</label>
-                            <input type="text" class="form-control" name="namaPasangan" value="{{ row[3] }}">
+                            <label>
+                                <input type="text" class="form-control" name="namaPasangan" value="{{ row[3] }}">
+                            </label>
                         </div>
                         <div class="form-group">
                             <label >Jenis Perisytiharan:</label>
-                            <select class="form-control" name="jenis" required>
-                            <option value="Rekod 1">Rekod 1</option>
-                            <option value="Rekod 2">Rekod 2</option>
-                        </select>
+                            <label>
+                                <select class="form-control" name="jenis" required>
+                                <option value="Rekod 1">Rekod 1</option>
+                                <option value="Rekod 2">Rekod 2</option>
+                            </select>
+                            </label>
                         </div>
                         <div class="form-group">
                             <label>Kategori Perisytiharan: </label>
@@ -122,8 +142,6 @@
         </div>
     </div>
     {% endfor %}
-   <!-- Modal Edit: Existing code for the edit modal -->
-    <!-- Modal -->
 
     <div id="myModal" class="modal fade" role="dialog">
     <div class="modal-dialog">
@@ -217,7 +235,7 @@
             </div>
         </div>
     </div>
-</div>
+
 <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
 <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.all.min.js"></script>

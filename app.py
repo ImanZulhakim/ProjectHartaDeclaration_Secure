@@ -43,8 +43,6 @@ def main():
         return redirect(url_for('harta'))
 
 
-
-
 @app.route('/harta')
 def harta():
     try:
