@@ -64,12 +64,13 @@ def insert_harta():
     try:
         tahun = request.form['tahun']
         failNo = request.form['failNo']
+        namaPasangan = request.form['namaPasangan']
         jenis = request.form['jenis']
         kategori = request.form['kategori']
 
         cur = mysql.cursor()
-        cur.execute("INSERT INTO harta (tahun, failNo, jenis, kategori) VALUES ( %s, %s, %s, %s)",
-                    (tahun, failNo, jenis, kategori))
+        cur.execute("INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori) VALUES ( %s, %s, %s, %s, %s)",
+                    (tahun, failNo, namaPasangan, jenis, kategori))
         mysql.commit()
 
         flash("Harta Berjaya Diisytihar!")
@@ -77,7 +78,7 @@ def insert_harta():
 
     except Exception as e:
         logging.exception("Harta Gagal Diisytihar!")
-        logging.error("Tahun: %s, Nombor Fail: %s, Jenis: %s, Kategori: %s", tahun, failNo, jenis, kategori)
+        logging.error("Tahun: %s, Nombor Fail: %s, namaPasangan=%s, Jenis: %s, Kategori: %s", tahun, failNo, namaPasangan, jenis, kategori)
         flash("Harta Gagal Diisytihar!")
         return redirect(url_for('harta'))
 
@@ -89,12 +90,13 @@ def update_harta():
             bil = request.form['bil']
             tahun = request.form['tahun']
             failNo = request.form['failNo']
+            namaPasangan = request.form['namaPasangan']
             jenis = request.form['jenis']
             kategori = request.form['kategori']
 
             cur = mysql.cursor()
-            cur.execute("UPDATE harta SET tahun=%s, failNo=%s, jenis=%s, kategori=%s WHERE bil=%s",
-                        (tahun, failNo, jenis, kategori, bil))
+            cur.execute("UPDATE harta SET tahun=%s, failNo=%s, namaPasangan=%s, jenis=%s, kategori=%s WHERE bil=%s",
+                        (tahun, failNo, namaPasangan, jenis, kategori, bil))
             flash("Harta Berjaya Dikemas Kini!")
             mysql.commit()
             return redirect(url_for('harta'))
