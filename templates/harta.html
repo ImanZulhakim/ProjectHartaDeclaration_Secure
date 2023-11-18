@@ -178,16 +178,19 @@
                             <label class="form-check-label" for="sendiri">
                                 Sendiri
                             </label>
-                        </div>
+                         </div>
                         <div class="form-check">
-                            <input class="form-check-input" type="radio" name="kategori" id="bersama" value="Bersama" required>
+                            <input class="form-check-input" type="radio" name="kategori" id="bersama" value="Bersama"
+                                   required>
                             <label class="form-check-label" for="bersama">
                                 Bersama
                             </label>
                         </div>
                     </div>
                     <div class="form-group">
-                        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#draftModal">Preview Data</button>
+                        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#draftModal">
+                            Preview Rekod
+                        </button>
                     </div>
                 </form>
             </div>
@@ -204,7 +207,7 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <button type="button" class="close" data-dismiss="modal">&times;</button>
-                    <h4 class="modal-title">Review Data</h4>
+                    <h4 class="modal-title">Review Rekod</h4>
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
@@ -267,11 +270,11 @@
             });
         }
     });
-}
+    }
 
     // Function to show draft data in the draft modal
     function showDraftData() {
-        $("#draft_jenis").text($("#draftForm input[name='jenis']").val());
+        $("#draft_jenis").text($("#draftForm select[name='jenis']").val());
         $("#draft_tahun").text($("#draftForm input[name='tahun']").val());
         $("#draft_no_fail").text($("#draftForm input[name='failNo']").val());
         $("#draft_namaPasangan").text($("#draftForm input[name='namaPasangan']").val());

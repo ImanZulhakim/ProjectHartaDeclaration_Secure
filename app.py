@@ -23,19 +23,12 @@ logging.basicConfig(level=logging.DEBUG)
 @app.route('/')
 def main():
     try:
-        # Fetch customers data
+        # Fetch harta data
         cur_harta = mysql.cursor()
         cur_harta.execute("SELECT * FROM harta")
         harta_data = cur_harta.fetchall()
         cur_harta.close()
 
-        # # Fetch treatments data
-        # cur_hartalain = mysql.cursor()
-        # cur_hartalain.execute("SELECT * FROM hartalain")
-        # hartalain_data = cur_hartalain.fetchall()
-        # cur_hartalain.close()
-
-        # hartalain=hartalain_data
         return render_template('index.html', harta=harta_data )
     except Exception as e:
         logging.exception("Error retrieving data:")
