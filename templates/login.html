@@ -1,16 +1,156 @@
+{#<!DOCTYPE html>#}
+{##}
+{##}
+{#    <link href="{{url_for('static', filename = 'css/bootstrap.min.css')}}" rel="stylesheet">#}
+{##}
+{#    <div class="container">#}
+{#      <div class="row justify-content-center">#}
+{#        <div class="col-lg-12">#}
+{#          <div class="jumbotron text-center p-4">#}
+{#            <h2>Flask + 2FA Demo</h2>#}
+{#          </div>#}
+{#        </div>#}
+{#        <div class="col-lg-6">#}
+{#          {% with messages = get_flashed_messages(with_categories=true) %}#}
+{#          {% if messages %}#}
+{#          {% for category, message in messages %}#}
+{#          <div class="alert alert-{{ category }}" role="alert">#}
+{#            {{ message }}#}
+{#          </div>#}
+{#          {% endfor %}#}
+{#          {% endif %}#}
+{#          {% endwith %}#}
+{#          <form method="POST">#}
+{#            <div class="form-group">#}
+{#              <label for="username">Username</label>#}
+{#              <input type="text" class="form-control" id="username" name="username" required>#}
+{#            </div>#}
+{#            <div class="form-group">#}
+{#              <label for="password">Password</label>#}
+{#              <input type="password" class="form-control" id="password" name="password" required>#}
+{#            </div>#}
+{#            <div class="text-center">#}
+{#              <button type="submit" class="btn btn-primary">Authenticate User</button>#}
+{#            </div>#}
+{#          </form>#}
+{#        </div>#}
+{#      </div>#}
+{#    </div>#}
 <!DOCTYPE html>
 <html>
+
 <head>
-    <title>Login Page</title>
+    <title>Sistem Perisytiharan Harta</title>
+    <link rel="icon" type="image/x-icon" href="../static/images/ghost-regular-24.ico"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body {
+            background-image: url("{{url_for('static', filename='images/background.jpg')}}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        input[type=text], input[type=password] {
+            width: 100%;
+            padding: 12px 20px;
+            margin: 8px 0;
+            display: inline-block;
+            border: 1px solid #ccc;
+            box-sizing: border-box;
+        }
+
+        button {
+            background-color: #04AA6D;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        button:hover {
+            opacity: 0.8;
+        }
+
+        .cancelbtn {
+            width: auto;
+            padding: 10px 18px;
+            background-color: #f44336;
+        }
+
+        .imgcontainer {
+            text-align: center;
+            margin: 24px 0 12px 0;
+        }
+
+        img.avatar {
+            width: 40%;
+            border-radius: 50%;
+        }
+
+        .container {
+            width: 50%;
+            padding: 20px;
+            border: 1px solid #ccc; /* Added border styling */
+            box-sizing: border-box; /* Ensuring padding and border are included in the width */
+            margin: auto; /* Centering the container */
+            background-color: white;
+        }
+
+        span.psw {
+            float: right;
+            padding-top: 16px;
+        }
+
+        /* Change styles for span and cancel button on extra small screens */
+        @media screen and (max-width: 300px) {
+            span.psw {
+                display: block;
+                float: none;
+            }
+
+            .cancelbtn {
+                width: 100%;
+            }
+        }
+    </style>
 </head>
+
 <body>
-    <h2>Login Page</h2>
-    <form method="POST" action="/">
-        <label for="username">Username:</label>
-        <input type="text" id="username" name="username"><br><br>
-        <label for="password">Password:</label>
-        <input type="password" id="password" name="password"><br><br>
-        <input type="submit" value="Login">
-    </form>
+
+<form method="POST" action="/" class="container">
+
+    <h1>Login Form</h1>
+    <label for="uname"><b>Username</b></label>
+    <label>
+        <input type="text" placeholder="Enter Username" name="username" required>
+    </label>
+
+    <label for="psw"><b>Password</b></label>
+    <label>
+        <input type="password" placeholder="Enter Password" name="password" required>
+    </label>
+
+    <button type="submit">Login</button>
+    <button onclick="document.location='{{ 'signup' }}'">Sign Up</button>
+
+    <label>
+        <input type="checkbox" checked="checked" name="remember"> Remember me
+    </label>
+
+    {#        <div>#}
+    {#            <span class="psw">Forgot <a href="#">password?</a></span>#}
+    {#        </div>#}
+</form>
+
 </body>
+
 </html>

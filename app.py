@@ -9,13 +9,11 @@ app.secret_key = "flash_message"
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'Hanum2002@',
+    'password': 'root',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
 }
-email_user = 'nooraisyahanum@gmail.com'
-email_password = 'Hanum2002@'
 
 # Create a connection object
 mysql = mysql.connector.connect(**config)
@@ -31,10 +29,17 @@ def login():
         password = request.form['password']
         # Placeholder authentication logic
         if username == "admin" and password == "password":
-            return redirect(url_for('harta'))
+            return redirect(url_for('main'))
         else:
             flash('Invalid credentials')
     return render_template('login.html')
+
+
+@app.route('/signup')
+def signup():
+    return render_template('signup.html')
+
+
 @app.route('/logout')
 def logout():
     # Clear the user session
@@ -42,22 +47,18 @@ def logout():
     # Redirect to the login page
     return redirect(url_for('login'))
 
-@app.route('/')
+
+@app.route('/main')
 def main():
     try:
-        # Fetch harta data
-        cur_harta = mysql.cursor()
-        cur_harta.execute("SELECT * FROM harta")
-        harta_data = cur_harta.fetchall()
-        cur_harta.close()
-        data = get_data_from_database()
-        return render_template('index.html', data=data)
-
-        return render_template('index.html', harta=harta_data )
-
+        cur = mysql.cursor()
+        cur.execute("SELECT * FROM harta")
+        data = cur.fetchall()
+        cur.close()
+        return render_template('index.html', harta=data)
     except Exception as e:
-        logging.exception("Error retrieving data:")
-        flash("An error occurred while retrieving data.")
+        logging.exception("Ralat semasa mengambil data harta:")
+        flash("Ralat berlaku semasa mengambil data harta.")
         return redirect(url_for('harta'))
 
 
@@ -70,8 +71,8 @@ def harta():
         cur.close()
         return render_template('harta.html', harta=data)
     except Exception as e:
-        logging.exception("Error retrieving customer data:")
-        flash("An error occurred while retrieving customer data.")
+        logging.exception("Ralat semasa mengambil data harta:")
+        flash("Ralat berlaku semasa mengambil data harta.")
         return redirect(url_for('harta'))
 
 
@@ -134,9 +135,6 @@ def delete_harta(bil):
         logging.exception("Harta Gagal Dipadam!")
         flash("Ralat Semasa Memadam Harta!")
         return redirect(url_for('harta'))
-# if __name__ == '__main__':
-#     app.run(debug=True)
-
 
 
 if __name__ == "__main__":
