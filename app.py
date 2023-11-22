@@ -1,5 +1,7 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-import logging, mysql.connector
+from flask import Flask, render_template, request, session, flash, redirect, url_for
+import mysql.connector
+import mysql
+import logging
 
 app = Flask(__name__)
 app.secret_key = "flash_message"
@@ -7,11 +9,13 @@ app.secret_key = "flash_message"
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'root',
+    'password': 'Hanum2002@',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
 }
+email_user = 'nooraisyahanum@gmail.com'
+email_password = 'Hanum2002@'
 
 # Create a connection object
 mysql = mysql.connector.connect(**config)
@@ -19,6 +23,24 @@ mysql = mysql.connector.connect(**config)
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
 
+
+@app.route('/', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        # Placeholder authentication logic
+        if username == "admin" and password == "password":
+            return redirect(url_for('harta'))
+        else:
+            flash('Invalid credentials')
+    return render_template('login.html')
+@app.route('/logout')
+def logout():
+    # Clear the user session
+    session.clear()
+    # Redirect to the login page
+    return redirect(url_for('login'))
 
 @app.route('/')
 def main():
@@ -28,8 +50,11 @@ def main():
         cur_harta.execute("SELECT * FROM harta")
         harta_data = cur_harta.fetchall()
         cur_harta.close()
+        data = get_data_from_database()
+        return render_template('index.html', data=data)
 
         return render_template('index.html', harta=harta_data )
+
     except Exception as e:
         logging.exception("Error retrieving data:")
         flash("An error occurred while retrieving data.")
@@ -109,6 +134,9 @@ def delete_harta(bil):
         logging.exception("Harta Gagal Dipadam!")
         flash("Ralat Semasa Memadam Harta!")
         return redirect(url_for('harta'))
+# if __name__ == '__main__':
+#     app.run(debug=True)
+
 
 
 if __name__ == "__main__":
