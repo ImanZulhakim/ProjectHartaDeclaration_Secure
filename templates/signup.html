@@ -1,126 +1,399 @@
+{#<!DOCTYPE html>#}
+{#<html>#}
+{#<head>#}
+{#    <title>Sistem Perisytiharan Harta</title>#}
+{#    <link rel="icon" type="image/x-icon" href="../static/images/ghost-regular-24.ico"/>#}
+{#</head>#}
+{##}
+{##}
+{#<style>#}
+{##}
+{#    body {#}
+{#        background-image: url("{{url_for('static', filename='images/background.jpg')}}");#}
+{#        background-repeat: no-repeat;#}
+{#        background-size: cover;#}
+{#        background-position: center;#}
+{#        font-family: Arial, Helvetica, sans-serif;#}
+{#        display: flex;#}
+{#        align-items: center;#}
+{#        justify-content: center;#}
+{#        height: 100vh;#}
+{#        margin: 0;#}
+{#        overflow: hidden;#}
+{#    }#}
+{##}
+{#    * {#}
+{#        box-sizing: border-box#}
+{#    }#}
+{##}
+{##}
+{#    /* Full-width input fields */#}
+{#    input[type=text], input[type=password] {#}
+{#        width: 100%;#}
+{#        padding: 15px;#}
+{#        margin: 5px 0 22px 0;#}
+{#        display: inline-block;#}
+{#        border: none;#}
+{#        background: #f1f1f1;#}
+{#        box-sizing: border-box; /* Add this line to include padding in the width */#}
+{#    }#}
+{##}
+{#    input[type=text]:focus, input[type=password]:focus {#}
+{#        background-color: #ddd;#}
+{#        outline: none;#}
+{#    }#}
+{##}
+{#    hr {#}
+{#        border: 1px solid #f1f1f1;#}
+{#        margin-bottom: 25px;#}
+{#    }#}
+{##}
+{#    /* Set a style for all buttons */#}
+{#    button {#}
+{#        background-color: #04AA6D;#}
+{#        color: white;#}
+{#        padding: 14px 20px;#}
+{#        margin: 8px 0;#}
+{#        border: none;#}
+{#        cursor: pointer;#}
+{#        width: 100%;#}
+{#        opacity: 0.9;#}
+{#    }#}
+{##}
+{#    button:hover {#}
+{#        opacity: 1;#}
+{#    }#}
+{##}
+{#    /* Extra styles for the cancel button */#}
+{#    .cancelbtn {#}
+{#        padding: 14px 20px;#}
+{#        background-color: #f44336;#}
+{#    }#}
+{##}
+{#    /* Float cancel and signup buttons and add an equal width */#}
+{#    .cancelbtn, .signupbtn {#}
+{#        float: left;#}
+{#        width: 50%;#}
+{#    }#}
+{##}
+{#    .container {#}
+{#        width: 50%;#}
+{#        padding: 20px;#}
+{#        background-color: white;#}
+{#    }#}
+{##}
+{#    /* Clear floats */#}
+{#    .clearfix::after {#}
+{#        content: "";#}
+{#        clear: both;#}
+{#        display: table;#}
+{#    }#}
+{##}
+{#    /* Change styles for cancel button and signup button on extra small screens */#}
+{#    @media screen and (max-width: 300px) {#}
+{#        .cancelbtn, .signupbtn {#}
+{#            width: 100%;#}
+{#        }#}
+{#    }#}
+{#</style>#}
+{#<body>#}
+{##}
+{#<form action="/signup" method="post" style="border:1px solid #ccc" class="container">#}
+{#    <h1>Sign Up</h1>#}
+{#    <p>Please fill in this form to create an account.</p>#}
+{#    <hr>#}
+{##}
+{#    <label for="email"><b>Email</b></label>#}
+{#    <input type="text" placeholder="Enter Email" name="email" required>#}
+{##}
+{#    <label for="psw"><b>Password</b></label>#}
+{#    <input type="password" placeholder="Enter Password" name="psw" required>#}
+{##}
+{#    <label for="psw-repeat"><b>Repeat Password</b></label>#}
+{#    <input type="password" placeholder="Repeat Password" name="psw-repeat" required>#}
+{##}
+{#    <label>#}
+{#        <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px"> Remember me#}
+{#    </label>#}
+{##}
+{##}
+{#    <div class="clearfix">#}
+{#        <button onclick="document.location='/'" type="button" class="cancelbtn">Cancel</button>#}
+{#        <button type="submit" class="signupbtn">Sign Up</button>#}
+{#    </div>#}
+{#</form>#}
+{##}
+{#</body>#}
+{#</html>#}
+
+{#<!DOCTYPE html>#}
+{#<html>#}
+{#<head>#}
+{#    <title>Sistem Perisytiharan Harta</title>#}
+{#    <link rel="icon" type="image/x-icon" href="../static/images/ghost-regular-24.ico"/>#}
+{#    <style>#}
+{#        body {#}
+{#            background-image: url("{{url_for('static', filename='images/background.jpg')}}");#}
+{#            background-repeat: no-repeat;#}
+{#            background-size: cover;#}
+{#            background-position: center;#}
+{#            font-family: Arial, Helvetica, sans-serif;#}
+{#            display: flex;#}
+{#            align-items: center;#}
+{#            justify-content: center;#}
+{#            height: 100vh;#}
+{#            margin: 0;#}
+{#            overflow: hidden;#}
+{#        }#}
+{##}
+{#        * {#}
+{#            box-sizing: border-box#}
+{#        }#}
+{##}
+{#        /* Full-width input fields */#}
+{#        input[type=text], input[type=password] {#}
+{#            width: 100%;#}
+{#            padding: 15px;#}
+{#            margin: 5px 0 22px 0;#}
+{#            display: inline-block;#}
+{#            border: none;#}
+{#            background: #f1f1f1;#}
+{#        }#}
+{##}
+{#        input[type=text]:focus, input[type=password]:focus {#}
+{#            background-color: #ddd;#}
+{#            outline: none;#}
+{#        }#}
+{##}
+{#        hr {#}
+{#            border: 1px solid #f1f1f1;#}
+{#            margin-bottom: 25px;#}
+{#        }#}
+{##}
+{#        /* Set a style for all buttons */#}
+{#        button {#}
+{#            background-color: #04AA6D;#}
+{#            color: white;#}
+{#            padding: 14px 20px;#}
+{#            margin: 8px 0;#}
+{#            border: none;#}
+{#            cursor: pointer;#}
+{#            width: 100%;#}
+{#            opacity: 0.9;#}
+{#        }#}
+{##}
+{#        button:hover {#}
+{#            opacity:1;#}
+{#        }#}
+{##}
+{#        /* Extra styles for the cancel button */#}
+{#        .cancelbtn {#}
+{#            padding: 14px 20px;#}
+{#            background-color: #f44336;#}
+{#        }#}
+{##}
+{#        /* Float cancel and signup buttons and add an equal width */#}
+{#        .cancelbtn, .signupbtn {#}
+{#            float: left;#}
+{#            width: 50%;#}
+{#        }#}
+{##}
+{#        .container {#}
+{#            width: 50%;#}
+{#            padding: 20px;#}
+{#            background-color: white;#}
+{#        }#}
+{##}
+{#        /* Clear floats */#}
+{#        .clearfix::after {#}
+{#            content: "";#}
+{#            clear: both;#}
+{#            display: table;#}
+{#        }#}
+{##}
+{#        /* Styles for flash messages */#}
+{#        .flashes {#}
+{#            list-style-type: none;#}
+{#            padding: 10px;#}
+{#            margin-bottom: 15px;#}
+{#            background-color: #f44336; /* Red color for error messages */#}
+{#            color: white;#}
+{#            text-align: center;#}
+{#        }#}
+{##}
+{#        /* Change styles for cancel button and signup button on extra small screens */#}
+{#        @media screen and (max-width: 300px) {#}
+{#            .cancelbtn, .signupbtn {#}
+{#                width: 100%;#}
+{#            }#}
+{#        }#}
+{#    </style>#}
+{#</head>#}
+{#<body>#}
+{##}
+{#    {% with messages = get_flashed_messages() %}#}
+{#    {% if messages %}#}
+{#        <ul class="flashes">#}
+{#        {% for message in messages %}#}
+{#            <li>{{ message }}</li>#}
+{#        {% endfor %}#}
+{#        </ul>#}
+{#    {% endif %}#}
+{#    {% endwith %}#}
+{##}
+{#     <form action="/signup" method="post" style="border:1px solid #ccc" class="container" onsubmit="return validatePassword()">#}
+{#        <h1>Sign Up</h1>#}
+{#        <p>Please fill in this form to create an account.</p>#}
+{#        <hr>#}
+{##}
+{#        <label for="email"><b>Email</b></label>#}
+{#        <input type="text" placeholder="Enter Email" name="email" required>#}
+{##}
+{#        <label for="psw"><b>Password</b></label>#}
+{#        <input type="password" placeholder="Enter Password" name="psw" id="psw" required>#}
+{##}
+{#        <label for="psw-repeat"><b>Repeat Password</b></label>#}
+{#        <input type="password" placeholder="Repeat Password" name="psw-repeat" id="psw-repeat" required>#}
+{##}
+{#        <label>#}
+{#            <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px"> Remember me#}
+{#        </label>#}
+{##}
+{#        <div class="clearfix">#}
+{#            <button onclick="document.location='/'" type="button" class="cancelbtn">Cancel</button>#}
+{#            <button type="submit" class="signupbtn">Sign Up</button>#}
+{#        </div>#}
+{#    </form>#}
+{##}
+{#</body>#}
+{#</html>#}
+
 <!DOCTYPE html>
 <html>
 <head>
     <title>Sistem Perisytiharan Harta</title>
     <link rel="icon" type="image/x-icon" href="../static/images/ghost-regular-24.ico"/>
-</head>
-
-
-<style>
-
-    body {
-        background-image: url("{{url_for('static', filename='images/background.jpg')}}");
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-        font-family: Arial, Helvetica, sans-serif;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        height: 100vh;
-        margin: 0;
-        overflow: hidden;
-    }
-
-    * {
-        box-sizing: border-box
-    }
-
-
-    /* Full-width input fields */
-    input[type=text], input[type=password] {
-        width: 100%;
-        padding: 15px;
-        margin: 5px 0 22px 0;
-        display: inline-block;
-        border: none;
-        background: #f1f1f1;
-        box-sizing: border-box; /* Add this line to include padding in the width */
-    }
-
-    input[type=text]:focus, input[type=password]:focus {
-        background-color: #ddd;
-        outline: none;
-    }
-
-    hr {
-        border: 1px solid #f1f1f1;
-        margin-bottom: 25px;
-    }
-
-    /* Set a style for all buttons */
-    button {
-        background-color: #04AA6D;
-        color: white;
-        padding: 14px 20px;
-        margin: 8px 0;
-        border: none;
-        cursor: pointer;
-        width: 100%;
-        opacity: 0.9;
-    }
-
-    button:hover {
-        opacity: 1;
-    }
-
-    /* Extra styles for the cancel button */
-    .cancelbtn {
-        padding: 14px 20px;
-        background-color: #f44336;
-    }
-
-    /* Float cancel and signup buttons and add an equal width */
-    .cancelbtn, .signupbtn {
-        float: left;
-        width: 50%;
-    }
-
-    .container {
-        width: 50%;
-        padding: 20px;
-        background-color: white;
-    }
-
-    /* Clear floats */
-    .clearfix::after {
-        content: "";
-        clear: both;
-        display: table;
-    }
-
-    /* Change styles for cancel button and signup button on extra small screens */
-    @media screen and (max-width: 300px) {
-        .cancelbtn, .signupbtn {
-            width: 100%;
+    <style>
+        body {
+            background-image: url("{{url_for('static', filename='images/background.jpg')}}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+            overflow: hidden;
         }
-    }
-</style>
+
+        * {
+            box-sizing: border-box
+        }
+
+        input[type=text], input[type=password] {
+            width: 100%;
+            padding: 15px;
+            margin: 5px 0 22px 0;
+            display: inline-block;
+            border: none;
+            background: #f1f1f1;
+        }
+
+        input[type=text]:focus, input[type=password]:focus {
+            background-color: #ddd;
+            outline: none;
+        }
+
+        hr {
+            border: 1px solid #f1f1f1;
+            margin-bottom: 25px;
+        }
+
+        button {
+            background-color: #04AA6D;
+            color: white;
+            padding: 14px 20px;
+            margin: 8px 0;
+            border: none;
+            cursor: pointer;
+            width: 100%;
+            opacity: 0.9;
+        }
+
+        button:hover {
+            opacity: 1;
+        }
+
+        .cancelbtn {
+            padding: 14px 20px;
+            background-color: #f44336;
+        }
+
+        .cancelbtn, .signupbtn {
+            float: left;
+            width: 50%;
+        }
+
+        .container {
+            width: 50%;
+            padding: 20px;
+            background-color: white;
+        }
+
+        .clearfix::after {
+            content: "";
+            clear: both;
+            display: table;
+        }
+
+        @media screen and (max-width: 300px) {
+            .cancelbtn, .signupbtn {
+                width: 100%;
+            }
+        }
+    </style>
+    <script>
+        function validatePassword() {
+            var password = document.getElementById("psw").value;
+            var confirmPassword = document.getElementById("psw-repeat").value;
+
+            if (password !== confirmPassword) {
+                alert("Passwords do not match.");
+                return false;
+            }
+            return true;
+        }
+    </script>
+</head>
 <body>
 
-<form action="/" style="border:1px solid #ccc" class="container">
-    <h1>Sign Up</h1>
-    <p>Please fill in this form to create an account.</p>
-    <hr>
+    <form action="/signup" method="post" style="border:1px solid #ccc" class="container" onsubmit="return validatePassword()">
+        <h1>Sign Up</h1>
+        <p>Please fill in this form to create an account.</p>
+        <hr>
 
-    <label for="email"><b>Email</b></label>
-    <input type="text" placeholder="Enter Email" name="email" required>
+        <label for="email"><b>Email</b></label>
+        <input type="text" placeholder="Enter Email" name="email" required>
 
-    <label for="psw"><b>Password</b></label>
-    <input type="password" placeholder="Enter Password" name="psw" required>
+        <label for="psw"><b>Password</b></label>
+        <input type="password" placeholder="Enter Password" name="psw" id="psw" required>
 
-    <label for="psw-repeat"><b>Repeat Password</b></label>
-    <input type="password" placeholder="Repeat Password" name="psw-repeat" required>
+        <label for="psw-repeat"><b>Repeat Password</b></label>
+        <input type="password" placeholder="Repeat Password" name="psw-repeat" id="psw-repeat" required>
 
-    <label>
-        <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px"> Remember me
-    </label>
+        <label>
+            <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px"> Remember me
+        </label>
 
-    <div class="clearfix">
-        <button onclick="document.location='{{ '/' }}'" class="cancelbtn">Cancel</button>
-        <button type="submit" class="signupbtn">Sign Up</button>
-    </div>
-</form>
+        <div class="clearfix">
+            <button onclick="document.location='/'" type="button" class="cancelbtn">Cancel</button>
+            <button type="submit" class="signupbtn">Sign Up</button>
+        </div>
+    </form>
 
 </body>
 </html>
+
+

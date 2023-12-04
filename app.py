@@ -9,7 +9,7 @@ app.secret_key = "flash_message"
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'root',
+    'password': 'Hanum2002@',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -35,9 +35,37 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/signup')
+@app.route('/signup', methods=['GET', 'POST'])
 def signup():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['psw']
+        repeat_password = request.form['psw-repeat']
+
+        # Simple validation
+        if password != repeat_password:
+            flash('Passwords do not match')
+            return redirect(url_for('signup'))
+
+        # Insert into database
+        try:
+            cur = mysql.cursor()
+            # Insert user data into the database
+            cur.execute("INSERT INTO user (email, password) VALUES (%s, %s)",
+                        (email, password))
+            mysql.commit()
+            cur.close()
+
+            flash('Account successfully created')
+            return redirect(url_for('login'))
+        except Exception as e:
+            logging.exception("Error during signup")
+            flash('Signup failed')
+            return redirect(url_for('signup'))
+
+    # This part is necessary to handle GET requests and POST requests that do not satisfy conditions
     return render_template('signup.html')
+
 
 
 @app.route('/logout')
