@@ -1,7 +1,9 @@
-from flask import Flask, render_template, request, session, flash, redirect, url_for
+from flask import Flask, render_template, request, session, flash, redirect, url_for, send_file, make_response
 import mysql.connector
 import mysql
 import logging
+import io
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 app.secret_key = "flash_message"
@@ -9,7 +11,7 @@ app.secret_key = "flash_message"
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'Hanum2002@',
+    'password': 'root',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -72,6 +74,7 @@ def signup():
 def logout():
     # Clear the user session
     session.clear()
+
     # Redirect to the login page
     return redirect(url_for('login'))
 
@@ -93,15 +96,73 @@ def main():
 @app.route('/harta')
 def harta():
     try:
+        # Fetch jenis options from the database (replace this with your actual query)
+        jenis_options = ["Tanah", "Kereta", "Motosikal"]
+
+        # Fetch kategori options from the database (replace this with your actual query)
+        kategori_options = ["Sendiri", "Bersama"]
+
         cur = mysql.cursor()
         cur.execute("SELECT * FROM harta")
         data = cur.fetchall()
         cur.close()
-        return render_template('harta.html', harta=data)
+
+        return render_template('harta.html', harta=data, jenis_options=jenis_options, kategori_options=kategori_options)
     except Exception as e:
         logging.exception("Ralat semasa mengambil data harta:")
         flash("Ralat berlaku semasa mengambil data harta.")
         return redirect(url_for('harta'))
+
+
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}  # Add allowed file extensions
+
+
+@app.route('/download_harta/<int:bil>')
+def download_harta(bil):
+    try:
+
+        cur = mysql.cursor()
+        cur.execute("SELECT file_data, filename FROM harta WHERE bil = %s", (bil,))
+        result = cur.fetchone()
+
+        if result is None:
+            # Flash a message or handle the error if the entry is not found
+            flash("File not found.")
+            return redirect(url_for('harta'))
+
+        file_data, original_filename = result
+        cur.close()
+
+        if not allowed_file(original_filename):
+            # Flash a message or handle the error if the file extension is not allowed
+            flash("Invalid file extension for download.")
+            return redirect(url_for('harta'))
+
+        # Ensure a valid filename is used for download
+        if not original_filename:
+            original_filename = f"file_{bil}.bin"  # Provide a default filename if none is found
+
+        # Create a response with the PDF data
+        response = make_response(file_data)
+
+        # Set the Content-Type header to indicate that the response contains a PDF file
+        response.headers['Content-Type'] = 'application/pdf'
+
+        # Set the Content-Disposition header to suggest a filename for the browser to use
+        response.headers['Content-Disposition'] = f'inline; filename={original_filename}'
+
+        # Return the response
+        return response
+
+    except Exception as e:
+        logging.exception("An error occurred while processing the file download for 'harta'.")
+        logging.error("Error details: %s", str(e))
+        flash("An error occurred while processing the file download.")
+        return redirect(url_for('harta'))
+
+
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/insert_harta', methods=['POST'])
@@ -113,18 +174,42 @@ def insert_harta():
         jenis = request.form['jenis']
         kategori = request.form['kategori']
 
-        cur = mysql.cursor()
-        cur.execute("INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori) VALUES ( %s, %s, %s, %s, %s)",
-                    (tahun, failNo, namaPasangan, jenis, kategori))
-        mysql.commit()
+        # Check if the post request has the file part
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
 
-        flash("Harta Berjaya Diisytihar!")
-        return redirect(url_for('harta'))
+        file = request.files['file']
+
+        # If user does not select file, browser also submit an empty part without filename
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
+
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_data = file.read()
+
+            cur = mysql.cursor()
+            cur.execute("INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename) VALUES "
+                        "(%s, %s, %s, %s, %s, %s, %s)",
+                        (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename))
+            mysql.commit()
+
+            flash("Harta Berjaya Diisytihar!")
+            return redirect(url_for('harta'))
+
+        else:
+            flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif")
+            return redirect(request.url)
 
     except Exception as e:
-        logging.exception("Harta Gagal Diisytihar!")
-        logging.error("Tahun: %s, Nombor Fail: %s, namaPasangan=%s, Jenis: %s, Kategori: %s", tahun, failNo, namaPasangan, jenis, kategori)
-        flash("Harta Gagal Diisytihar!")
+
+        logging.exception("An error occurred while processing the file upload for 'harta'.")
+        logging.error("Error details: %s", str(e))
+        logging.error("Tahun: %s, Nombor Fail: %s, namaPasangan=%s, Jenis: %s, Kategori: %s", tahun, failNo,
+                      namaPasangan, jenis, kategori)
+        flash("Harta Gagal Diisytihar! An error occurred.")
         return redirect(url_for('harta'))
 
 
@@ -146,8 +231,9 @@ def update_harta():
             mysql.commit()
             return redirect(url_for('harta'))
         except Exception as e:
-            logging.exception("Harta Gagal Dikemas Kini!")
-            flash("Ralat Semasa Mengemas Kini Harta!")
+            logging.exception("An error occurred while updating 'harta'.")
+            logging.error("Error details: %s", str(e))
+            flash("Harta Gagal Dikemas Kini! An error occurred.")
             return redirect(url_for('harta'))
 
 

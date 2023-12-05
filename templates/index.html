@@ -3,48 +3,49 @@
 
 {% block content %}
     <style>
-    body {
-        background-image: url("{{url_for('static', filename='images/background.jpg')}}");
-        background-repeat: no-repeat;
-        background-size: cover;
-        background-position: center;
-    }
-</style>
-<section class="home-section">
-    <div class="text">Dashboard</div>
-    <link href="{{url_for('static', filename = 'css/bootstrap.min.css')}}" rel="stylesheet">
+        body {
+            background-image: url("{{url_for('static', filename='images/background.jpg')}}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+    <section class="home-section">
+        <div class="text">Dashboard</div>
+        {#        <button onclick="showConfirmationDialog()">Click me!</button>#}
+        <link href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}" rel="stylesheet">
 
 
-    <div class="container">
-        <div class="row">
-            <div class="myclass">
-                <h2>Senarai Harta</h2>
+        <div class="container">
+            <div class="row">
+                <div class="myclass">
+                    <h2>Senarai Harta</h2>
 
-                <table class="table table-dark table-hover">
-                    <tr>
-                        <th class="bil">Bil</th>
-                        <th class="tahun">Tahun</th>
-                        <th class="failNo">No. Fail</th>
-                        <th class="pasangan">Nama Pasangan</th>
-                        <th class="jenis">Jenis Perisytiharan Harta</th>
-                        <th class="kategori">Kategori Perisytiharan Harta</th>
-                    </tr>
-                    {% for row in harta %}
+                    <table class="table table-dark table-hover">
                         <tr>
-                            <td class="bil">{{ row[0] }}</td>
-                            <td class="tahun">{{ row[1] }}</td>
-                            <td class="failNo">{{ row[2] }}</td>
-                            <td class="pasangan">{{ row[3] }}</td>
-                            <td class="jenis">{{ row[4] }}</td>
-                            <td class="kategori">{{ row[5] }}</td>
-
-
+                            <th class="bil">Bil</th>
+                            <th class="tahun">Tahun</th>
+                            <th class="failNo">No. Fail</th>
+                            <th class="pasangan">Nama Pasangan</th>
+                            <th class="jenis">Jenis Perisytiharan Harta</th>
+                            <th class="kategori">Kategori Perisytiharan Harta</th>
                         </tr>
-                    {% endfor %}
-                </table>
+                        {% for row in harta %}
+                            <tr>
+                                <td class="bil">{{ row[0] }}</td>
+                                <td class="tahun">{{ row[1] }}</td>
+                                <td class="failNo">{{ row[2] }}</td>
+                                <td class="pasangan">{{ row[3] }}</td>
+                                <td class="jenis">{{ row[4] }}</td>
+                                <td class="kategori">{{ row[5] }}</td>
+
+
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
             </div>
         </div>
-    </div>
 
-</section>
+    </section>
 {% endblock %}
