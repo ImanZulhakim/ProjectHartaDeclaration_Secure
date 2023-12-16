@@ -24,6 +24,7 @@
                     <table class="table table-dark table-hover">
                         <tr>
                             <th class="bil">Bil</th>
+                            <th>User Name</th>
                             <th class="tahun">Tahun</th>
                             <th class="failNo">No. Fail</th>
                             <th class="pasangan">Nama Pasangan</th>
@@ -33,6 +34,7 @@
                         {% for row in harta %}
                             <tr>
                                 <td class="bil">{{ row[0] }}</td>
+                                <td>{{ row[-1] }}</td>
                                 <td class="tahun">{{ row[1] }}</td>
                                 <td class="failNo">{{ row[2] }}</td>
                                 <td class="pasangan">{{ row[3] }}</td>
