@@ -366,6 +366,8 @@
             return true;
         }
     </script>
+    <!-- Add reCAPTCHA script to the head -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
 </head>
 <body>
 
@@ -384,7 +386,8 @@
 
         <label for="psw-repeat"><b>Repeat Password</b></label>
         <input type="password" placeholder="Repeat Password" name="psw-repeat" id="psw-repeat" required>
-
+        <!-- Add the following div inside your form for reCAPTCHA -->
+        <div class="g-recaptcha" data-sitekey="6LdO3jIpAAAAABLMtJ1Q5hxaO_3JPlFVZKBInOTQ"></div>
         <label>
             <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px"> Remember me
         </label>

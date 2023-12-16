@@ -45,7 +45,7 @@
                         <table class="table table-striped">
                             <tr>
                                 <th>Bil</th>
-                                <th>User Name</th>
+                                <th>Name Pengguna</th>
                                 <th>Tahun</th>
                                 <th>Nombor Fail</th>
                                 <th>Nama Pasangan</th>
@@ -64,7 +64,7 @@
                                     <td>{{ row[5] }}</td>
                                     <td>{{ row[7] }}</td>
                                     <td><a href="{{ url_for('download_harta', bil=row[0]) }}"
-                                           class="btn btn-success btn-xs" download>Download</a></td>
+                                           class="btn btn-success btn-xs" download>Muat turun</a></td>
                                     <td>
                                         <a href="/update_harta/{{ row[0] }}" class="btn btn-warning btn-xs"
                                            data-toggle="modal" data-target="#modaledit{{ row[0] }}">Edit</a>
@@ -132,7 +132,7 @@
                     {% if 'admin' in session and session['admin'] %}
                         <!-- Show the email field only for admin -->
                         <div class="form-group">
-                            <label for="user_email">User Email:</label>
+                            <label for="user_email">Emel Pengguna:</label>
                             <input type="email" class="form-control" id="user_email" name="user_email" required>
                         </div>
                     {% endif %}
