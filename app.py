@@ -1,8 +1,7 @@
 from flask import Flask, render_template, request, session, flash, redirect, url_for, send_file, make_response
-import mysql.connector
-import mysql
 import logging
-import io
+import pymysql
+import requests
 from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
@@ -11,14 +10,13 @@ app.secret_key = "flash_message"
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'root',
+    'password': 'Hanum2002@',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
 }
 
-# Create a connection object
-mysql = mysql.connector.connect(**config)
+connection = pymysql.connect(**config)
 
 # Configure logging
 logging.basicConfig(level=logging.DEBUG)
@@ -27,19 +25,57 @@ logging.basicConfig(level=logging.DEBUG)
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        # Validate reCAPTCHA
+        recaptcha_response = request.form.get('g-recaptcha-response')
+        if not validate_recaptcha(recaptcha_response):
+            flash('reCAPTCHA verification failed. Please try again.')
+            return redirect(url_for('login'))
         username = request.form['username']
         password = request.form['password']
-        # Placeholder authentication logic
-        if username == "admin" and password == "password":
-            return redirect(url_for('main'))
-        else:
-            flash('Invalid credentials')
-    return render_template('login.html')
 
+        # Logging the username and password for debugging
+        logging.debug(f"Username: {username}, Password: {password}")
+
+        if username == 'admin' and password == 'admin':
+            # Admin login
+            # Inside the login route, after successful authentication
+            session['name'] = ['name']
+            session['admin'] = True
+            session['email'] = 'admin'
+            flash('Admin login successful')
+            return redirect(url_for('main'))
+
+        # Check if the user exists in the database and validate credentials
+        try:
+            cur = connection.cursor()
+            cur.execute("SELECT * FROM user WHERE email = %s AND password = %s", (username, password))
+            user = cur.fetchone()
+            cur.close()
+
+            if user:
+                # User login
+                session['email'] = user[0]  # Assuming email is at index 1 in the user tuple
+                flash('User login successful')
+                return redirect(url_for('main'))
+            else:
+                flash('Invalid credentials')
+
+        except Exception as e:
+            logging.exception("Error during login")
+            flash('Login failed')
+
+    return render_template('login.html')
 
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
+        if request.method == 'POST':
+            # Validate reCAPTCHA
+            recaptcha_response = request.form.get('g-recaptcha-response')
+            if not validate_recaptcha(recaptcha_response):
+                flash('reCAPTCHA verification failed. Please try again.')
+                return redirect(url_for('signup'))
+        name = request.form['name']
         email = request.form['email']
         password = request.form['psw']
         repeat_password = request.form['psw-repeat']
@@ -51,11 +87,11 @@ def signup():
 
         # Insert into database
         try:
-            cur = mysql.cursor()
+            cur = connection.cursor()
             # Insert user data into the database
-            cur.execute("INSERT INTO user (email, password) VALUES (%s, %s)",
-                        (email, password))
-            mysql.commit()
+            cur.execute("INSERT INTO user (name, email, password) VALUES (%s,%s, %s)",
+                        (name, email, password))
+            connection.commit()
             cur.close()
 
             flash('Account successfully created')
@@ -68,7 +104,12 @@ def signup():
     # This part is necessary to handle GET requests and POST requests that do not satisfy conditions
     return render_template('signup.html')
 
-
+def validate_recaptcha(response):
+    secret_key = '6LdO3jIpAAAAABSvzaRxVQ1ydFfKM2JxmejIfZq_'  # Replace with your actual Secret Key
+    payload = {'secret': secret_key, 'response': response}
+    r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=payload)
+    result = r.json()
+    return result['success']
 
 @app.route('/logout')
 def logout():
@@ -78,23 +119,78 @@ def logout():
     # Redirect to the login page
     return redirect(url_for('login'))
 
-
 @app.route('/main')
 def main():
     try:
-        cur = mysql.cursor()
-        cur.execute("SELECT * FROM harta")
-        data = cur.fetchall()
-        cur.close()
+        if 'email' not in session:
+            flash('You need to sign up first.')
+            return redirect(url_for('login'))
+
+        email = session['email']
+        if email == 'admin':
+            # Admin can see all user harta information
+            cur = connection.cursor()
+            # cur.execute("SELECT * FROM harta")
+            cur.execute("SELECT harta.*, user.name FROM harta JOIN user ON harta.email = user.email")
+            data = cur.fetchall()
+            cur.close()
+        else:
+            # Non-admin user can see their own harta information
+            cur = connection.cursor()
+            cur.execute("SELECT * FROM harta WHERE email=%s", (email,))
+            data = cur.fetchall()
+            cur.close()
+
         return render_template('index.html', harta=data)
     except Exception as e:
-        logging.exception("Ralat semasa mengambil data harta:")
-        flash("Ralat berlaku semasa mengambil data harta.")
+        logging.exception("Error fetching harta data:")
+        flash("An error occurred while fetching harta data.")
         return redirect(url_for('harta'))
-
 
 @app.route('/harta')
 def harta():
+    try:
+        if 'email' not in session:
+            flash('You need to sign up first.')
+            return redirect(url_for('login'))
+
+        email = session['email']
+        if email == 'admin':
+            # Admin can see all user harta information
+            #cur = mysql.cursor()
+            cur = connection.cursor()
+            # cur.execute("SELECT * FROM harta")
+            cur.execute("SELECT harta.*, user.name FROM harta JOIN user ON harta.email = user.email")
+            data = cur.fetchall()
+            cur.close()
+        else:
+            # Non-admin user can see their own harta information
+            #cur = mysql.cursor()
+            cur = connection.cursor()
+            cur.execute("SELECT * FROM harta WHERE email=%s", (email,))
+            data = cur.fetchall()
+            cur.close()
+
+        # Fetch jenis options from the database (replace this with your actual query)
+        jenis_options = ["Tanah", "Kereta", "Motosikal"]
+
+        # Fetch kategori options from the database (replace this with your actual query)
+        kategori_options = ["Sendiri", "Bersama"]
+
+        name = session.get('name', 'User')
+
+        return render_template('harta.html', harta=data, name=name, jenis_options=jenis_options, kategori_options=kategori_options)
+    except Exception as e:
+        logging.exception("Error fetching harta data:")
+        flash("An error occurred while fetching harta data.")
+        return redirect(url_for('harta'))
+
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}  # Add allowed file extensions
+
+
+
+@app.route('/download_harta/<int:bil>')
+def download_harta(bil):
     try:
         # Fetch jenis options from the database (replace this with your actual query)
         jenis_options = ["Tanah", "Kereta", "Motosikal"]
@@ -102,26 +198,7 @@ def harta():
         # Fetch kategori options from the database (replace this with your actual query)
         kategori_options = ["Sendiri", "Bersama"]
 
-        cur = mysql.cursor()
-        cur.execute("SELECT * FROM harta")
-        data = cur.fetchall()
-        cur.close()
-
-        return render_template('harta.html', harta=data, jenis_options=jenis_options, kategori_options=kategori_options)
-    except Exception as e:
-        logging.exception("Ralat semasa mengambil data harta:")
-        flash("Ralat berlaku semasa mengambil data harta.")
-        return redirect(url_for('harta'))
-
-
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}  # Add allowed file extensions
-
-
-@app.route('/download_harta/<int:bil>')
-def download_harta(bil):
-    try:
-
-        cur = mysql.cursor()
+        cur = connection.cursor()
         cur.execute("SELECT file_data, filename FROM harta WHERE bil = %s", (bil,))
         result = cur.fetchone()
 
@@ -168,49 +245,61 @@ def allowed_file(filename):
 @app.route('/insert_harta', methods=['POST'])
 def insert_harta():
     try:
-        tahun = request.form['tahun']
-        failNo = request.form['failNo']
-        namaPasangan = request.form['namaPasangan']
-        jenis = request.form['jenis']
-        kategori = request.form['kategori']
+        if 'email' in session:
+            email = session['email']
+            tahun = request.form['tahun']
+            failNo = request.form['failNo']
+            namaPasangan = request.form['namaPasangan']
+            jenis = request.form['jenis']
+            kategori = request.form['kategori']
 
-        # Check if the post request has the file part
-        if 'file' not in request.files:
-            flash('No file part')
-            return redirect(request.url)
+            # Check if the post request has the file part
+            if 'file' not in request.files:
+                flash('No file part')
+                return redirect(request.url)
 
-        file = request.files['file']
+            file = request.files['file']
 
-        # If user does not select file, browser also submit an empty part without filename
-        if file.filename == '':
-            flash('No selected file')
-            return redirect(request.url)
+            # If user does not select file, the browser also submits an empty part without filename
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
 
-        if file and allowed_file(file.filename):
-            filename = secure_filename(file.filename)
-            file_data = file.read()
+            # Check if the current user is an admin
+            if 'admin' in session and session['admin']:
+                # Admin can specify the user's email when adding harta
+                user_email = request.form.get('user_email', '')  # Get the user's email from the form
+            else:
+                # Regular user can only insert harta for themselves
+                user_email = email
 
-            cur = mysql.cursor()
-            cur.execute("INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename) VALUES "
-                        "(%s, %s, %s, %s, %s, %s, %s)",
-                        (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename))
-            mysql.commit()
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file_data = file.read()
 
-            flash("Harta Berjaya Diisytihar!")
-            return redirect(url_for('harta'))
+                # Insert harta into the database
+                cur = connection.cursor()
+                cur.execute(
+                    "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email) VALUES "
+                    "(%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, user_email))
+                connection.commit()
+
+                flash("Harta Berjaya Diisytihar!")
+                return redirect(url_for('harta'))
 
         else:
             flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif")
             return redirect(request.url)
 
     except Exception as e:
-
         logging.exception("An error occurred while processing the file upload for 'harta'.")
         logging.error("Error details: %s", str(e))
         logging.error("Tahun: %s, Nombor Fail: %s, namaPasangan=%s, Jenis: %s, Kategori: %s", tahun, failNo,
                       namaPasangan, jenis, kategori)
         flash("Harta Gagal Diisytihar! An error occurred.")
         return redirect(url_for('harta'))
+
 
 
 @app.route('/update_harta', methods=['POST'])
@@ -224,11 +313,12 @@ def update_harta():
             jenis = request.form['jenis']
             kategori = request.form['kategori']
 
-            cur = mysql.cursor()
+            #cur = mysql.cursor()
+            cur = connection.cursor()
             cur.execute("UPDATE harta SET tahun=%s, failNo=%s, namaPasangan=%s, jenis=%s, kategori=%s WHERE bil=%s",
                         (tahun, failNo, namaPasangan, jenis, kategori, bil))
             flash("Harta Berjaya Dikemas Kini!")
-            mysql.commit()
+            connection.commit()
             return redirect(url_for('harta'))
         except Exception as e:
             logging.exception("An error occurred while updating 'harta'.")
@@ -236,15 +326,25 @@ def update_harta():
             flash("Harta Gagal Dikemas Kini! An error occurred.")
             return redirect(url_for('harta'))
 
-
 @app.route('/delete_harta/<int:bil>', methods=['POST'])
 def delete_harta(bil):
     try:
-        cur = mysql.cursor()
-        cur.execute("DELETE FROM harta WHERE bil=%s", (bil,))
-        mysql.commit()
+        email = session['email']
+
+        # Check if the user is an admin or owns the harta entry
+        if 'admin' in session and session['admin']:
+            # Admin can delete any harta entry
+            cur = connection.cursor()
+            cur.execute("DELETE FROM harta WHERE bil=%s", (bil,))
+        else:
+            # Regular user can only delete their own harta entry
+            cur = connection.cursor()
+            cur.execute("DELETE FROM harta WHERE bil=%s AND email=%s", (bil, email))
+
+        connection.commit()
         flash("Harta Berjaya Dipadam!")
         return redirect(url_for('harta'))
+
     except Exception as e:
         logging.exception("Harta Gagal Dipadam!")
         flash("Ralat Semasa Memadam Harta!")

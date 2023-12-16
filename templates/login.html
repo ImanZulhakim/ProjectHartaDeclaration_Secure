@@ -1,41 +1,3 @@
-{#<!DOCTYPE html>#}
-{##}
-{##}
-{#    <link href="{{url_for('static', filename = 'css/bootstrap.min.css')}}" rel="stylesheet">#}
-{##}
-{#    <div class="container">#}
-{#      <div class="row justify-content-center">#}
-{#        <div class="col-lg-12">#}
-{#          <div class="jumbotron text-center p-4">#}
-{#            <h2>Flask + 2FA Demo</h2>#}
-{#          </div>#}
-{#        </div>#}
-{#        <div class="col-lg-6">#}
-{#          {% with messages = get_flashed_messages(with_categories=true) %}#}
-{#          {% if messages %}#}
-{#          {% for category, message in messages %}#}
-{#          <div class="alert alert-{{ category }}" role="alert">#}
-{#            {{ message }}#}
-{#          </div>#}
-{#          {% endfor %}#}
-{#          {% endif %}#}
-{#          {% endwith %}#}
-{#          <form method="POST">#}
-{#            <div class="form-group">#}
-{#              <label for="username">Username</label>#}
-{#              <input type="text" class="form-control" id="username" name="username" required>#}
-{#            </div>#}
-{#            <div class="form-group">#}
-{#              <label for="password">Password</label>#}
-{#              <input type="password" class="form-control" id="password" name="password" required>#}
-{#            </div>#}
-{#            <div class="text-center">#}
-{#              <button type="submit" class="btn btn-primary">Authenticate User</button>#}
-{#            </div>#}
-{#          </form>#}
-{#        </div>#}
-{#      </div>#}
-{#    </div>#}
 <!DOCTYPE html>
 <html>
 
@@ -43,6 +5,8 @@
     <title>Sistem Perisytiharan Harta</title>
     <link rel="icon" type="image/x-icon" href="../static/images/ghost-regular-24.ico"/>
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Add reCAPTCHA script to the head -->
+    <script src="https://www.google.com/recaptcha/api.js" async defer></script>
     <style>
         body {
             background-image: url("{{url_for('static', filename='images/background.jpg')}}");
@@ -138,6 +102,9 @@
     <label>
         <input type="password" placeholder="Enter Password" name="password" required>
     </label>
+
+    <!-- Add reCAPTCHA widget here -->
+    <div class="g-recaptcha" data-sitekey="6LdO3jIpAAAAABLMtJ1Q5hxaO_3JPlFVZKBInOTQ"></div>
 
     <button type="submit">Login</button>
     <button onclick="document.location='{{ 'signup' }}'">Sign Up</button>
