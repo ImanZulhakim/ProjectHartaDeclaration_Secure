@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-{% extends "base.html" %}
+{% extends "base_admin.html" %}
 
 {% block content %}
     <style>
@@ -11,7 +11,8 @@
         }
     </style>
 
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.css">
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.css">
 
     <link href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}" rel="stylesheet">
 
@@ -24,23 +25,24 @@
                 <div class="row">
                     <div class="well col-md-12">
                         <h2>Senarai Harta
-                            <button type="button" class="btn btn-success pull-right" data-toggle="modal"
+                            <button type="button" class="btn btn-success pull-right"
+                                    data-toggle="modal"
                                     data-target="#myModal">Tambah
                             </button>
                         </h2>
 
-                        {% with messages = get_flashed_messages() %}
-                            {% if messages %}
-                                {% for message in messages %}
-                                    <div class="alert alert-success" role="alert">
-                                        <button type="button" class="close" data-dismiss="alert" aria-label="close">
-                                            <span aria-hidden="true">x</span>
-                                        </button>
-                                        {{ message }}
-                                    </div>
-                                {% endfor %}
-                            {% endif %}
-                        {% endwith %}
+                        {#                        {% with messages = get_flashed_messages() %}#}
+                        {#                            {% if messages %}#}
+                        {#                                {% for message in messages %}#}
+                        {#                                    <div class="alert alert-success" role="alert">#}
+                        {#                                        <button type="button" class="close" data-dismiss="alert" aria-label="close">#}
+                        {#                                            <span aria-hidden="true">x</span>#}
+                        {#                                        </button>#}
+                        {#                                        {{ message }}#}
+                        {#                                    </div>#}
+                        {#                                {% endfor %}#}
+                        {#                            {% endif %}#}
+                        {#                        {% endwith %}#}
 
                         <table class="table table-striped">
                             <tr>
@@ -64,11 +66,14 @@
                                     <td>{{ row[5] }}</td>
                                     <td>{{ row[7] }}</td>
                                     <td><a href="{{ url_for('download_harta', bil=row[0]) }}"
-                                           class="btn btn-success btn-xs" download>Muat turun</a></td>
+                                           class="btn btn-success btn-xs" download>Muat turun</a>
+                                    </td>
                                     <td>
-                                        <a href="/update_harta/{{ row[0] }}" class="btn btn-warning btn-xs"
+                                        <a href="/update_harta/{{ row[0] }}"
+                                           class="btn btn-warning btn-xs"
                                            data-toggle="modal" data-target="#modaledit{{ row[0] }}">Edit</a>
-                                        <button class="btn btn-danger btn-xs" onclick="deleteHarta({{ row[0] }})">
+                                        <button class="btn btn-danger btn-xs"
+                                                onclick="deleteHarta({{ row[0] }})">
                                             Padam
                                         </button>
                                     </td>
@@ -84,77 +89,84 @@
 
 
     <!-- Insert harta -->
-<div id="myModal" class="modal fade" role="dialog">
-    <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header">
-                <button type="button" class="close" data-dismiss="modal">&times;</button>
-                <h4 class="modal-title">Perisytiharan Harta</h4>
-            </div>
-            <div class="modal-body">
-                <form id="draftForm" method="POST" action="{{ url_for('insert_harta') }}" enctype="multipart/form-data">
-                    <div class="form-group">
-                        <label>Tahun:</label>
-                        <input type="text" class="form-control" name="tahun" required>
-                    </div>
-                    <div class="form-group">
-                        <label>No. Fail:</label>
-                        <input type="text" class="form-control" name="failNo" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Nama Pasangan:</label>
-                        <input type="text" class="form-control" name="namaPasangan" required>
-                    </div>
-                    <div class="form-group">
-                        <label>Jenis Perisytiharan:</label>
-                        <label>
-                            <select class="form-control" name="jenis" required>
-                                <option value="Tanah">Tanah</option>
-                                <option value="Kereta">Kereta</option>
-                                <option value="Motosikal">Motosikal</option>
-                            </select>
-                        </label>
-                    </div>
-                    <div class="form-group">
-                        <label>Kategori Perisytiharan:</label>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="kategori" id="sendiri" value="Sendiri"
-                                   required>
-                            <label class="form-check-label" for="sendiri">Sendiri</label>
-                        </div>
-                        <div class="form-check">
-                            <input class="form-check-input" type="radio" name="kategori" id="bersama" value="Bersama"
-                                   required>
-                            <label class="form-check-label" for="bersama">Bersama</label>
-                        </div>
-                    </div>
-
-                    {% if 'admin' in session and session['admin'] %}
-                        <!-- Show the email field only for admin -->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Perisytiharan Harta</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="draftForm" method="POST" action="{{ url_for('insert_harta') }}"
+                          enctype="multipart/form-data">
                         <div class="form-group">
-                            <label for="user_email">Emel Pengguna:</label>
-                            <input type="email" class="form-control" id="user_email" name="user_email" required>
+                            <label>Tahun:</label>
+                            <input type="text" class="form-control" name="tahun" required>
                         </div>
-                    {% endif %}
+                        <div class="form-group">
+                            <label>No. Fail:</label>
+                            <input type="text" class="form-control" name="failNo" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nama Pasangan:</label>
+                            <input type="text" class="form-control" name="namaPasangan" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Jenis Perisytiharan:</label>
+                            <label>
+                                <select class="form-control" name="jenis" required>
+                                    <option value="Tanah">Tanah</option>
+                                    <option value="Kereta">Kereta</option>
+                                    <option value="Motosikal">Motosikal</option>
+                                </select>
+                            </label>
+                        </div>
+                        <div class="form-group">
+                            <label>Kategori Perisytiharan:</label>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="kategori"
+                                       id="sendiri" value="Sendiri"
+                                       required>
+                                <label class="form-check-label" for="sendiri">Sendiri</label>
+                            </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="radio" name="kategori"
+                                       id="bersama" value="Bersama"
+                                       required>
+                                <label class="form-check-label" for="bersama">Bersama</label>
+                            </div>
+                        </div>
 
-                    <div class="form-group">
-                        <label for="file">File</label>
-                        <input id="file" name="file" type="file" required onchange="updateViewFileLink()"/>
-                    </div>
-                    <div class="form-group">
-                        <button class="btn btn-primary" type="button" data-toggle="modal" data-target="#draftModal"
-                                onclick="showDraftData()">
-                            Preview Rekod
-                        </button>
-                    </div>
-                </form>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                        {% if 'admin' in session and session['admin'] %}
+                            <!-- Show the email field only for admin -->
+                            <div class="form-group">
+                                <label for="user_email">Emel Pengguna:</label>
+                                <input type="email" class="form-control" id="user_email"
+                                       name="user_email" required>
+                            </div>
+                        {% endif %}
+
+                        <div class="form-group">
+                            <label for="file">File</label>
+                            <input id="file" name="file" type="file" required
+                                   onchange="updateViewFileLink()"/>
+                        </div>
+                        <div class="form-group">
+                            <button class="btn btn-primary" type="button" data-toggle="modal"
+                                    data-target="#draftModal"
+                                    onclick="showDraftData()">
+                                Preview Rekod
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal
+                    </button>
+                </div>
             </div>
         </div>
     </div>
-</div>
 
 
     <!-- Update harta -->
@@ -174,19 +186,22 @@
                             <div class="form-group">
                                 <label>Tahun:</label>
                                 <label>
-                                    <input type="text" class="form-control" name="tahun" value="{{ row[1] }}">
+                                    <input type="text" class="form-control" name="tahun"
+                                           value="{{ row[1] }}">
                                 </label>
                             </div>
                             <div class="form-group">
                                 <label>No. Fail:</label>
                                 <label>
-                                    <input type="text" class="form-control" name="failNo" value="{{ row[2] }}">
+                                    <input type="text" class="form-control" name="failNo"
+                                           value="{{ row[2] }}">
                                 </label>
                             </div>
                             <div class="form-group">
                                 <label>Nama Pasangan:</label>
                                 <label>
-                                    <input type="text" class="form-control" name="namaPasangan" value="{{ row[3] }}">
+                                    <input type="text" class="form-control" name="namaPasangan"
+                                           value="{{ row[3] }}">
                                 </label>
                             </div>
                             <div class="form-group">
@@ -223,7 +238,8 @@
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel
+                        </button>
                     </div>
                 </div>
             </div>
@@ -263,20 +279,25 @@
                     </div>
                     <div class="form-group">
                         <label for="draft_file">File:</label>
-                        <a href="#" id="draft_file" target="_blank" onclick="previewFile()">View File</a>
+                        <a href="#" id="draft_file" target="_blank" onclick="previewFile()">View
+                            File</a>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-primary" onclick="saveData()">Hantar</button>
-                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
+                    <button type="button" class="btn btn-primary" onclick="saveData()">Hantar
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal
+                    </button>
                 </div>
             </div>
         </div>
     </div>
 
 
-    <script type="text/javascript" src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
-    <script type="text/javascript" src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.all.min.js"></script>
 
 {% endblock %}

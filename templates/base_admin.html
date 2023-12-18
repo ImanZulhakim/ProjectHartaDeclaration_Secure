@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <title>Sistem Perisytiharan Harta</title>
+    <link rel="stylesheet" href="../static/css/styles.css">
+    <link rel="icon" type="image/x-icon" href="../static/images/ghost-regular-24.ico">
+    <!-- Boxicons CDN Link -->
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+<div class="sidebar">
+    <div class="logo-details">
+
+        <div class="logo_name">HARTIFY</div>
+        <i class='bx bx-menu' id="btn"></i>
+    </div>
+    <ul class="nav-list">
+
+        <li>
+            <a href="{{ url_for('main') }}" id="nav-link">
+                <i class='bx bx-grid-alt'></i>
+                <span class="links_name">Dashboard</span>
+            </a>
+            <span class="tooltip">Dashboard</span>
+        </li>
+        <li>
+            <a href="{{ url_for('harta') }}" id="customer-link">
+                <i class='bx bxs-institution'></i>
+                <span class="links_name">Isytihar Harta</span>
+            </a>
+            <span class="tooltip">Isytihar Harta</span>
+        </li>
+        <li>
+            <a href="{{ url_for('user') }}" id="customer-link">
+                <i class='bx bx-user'></i>
+                <span class="links_name">Pengurusan Pengguna</span>
+            </a>
+            <span class="tooltip">Urus Pengguna</span>
+        </li>
+
+        <li class="profile">
+            <div class="profile-details">
+                <img src="../static/images/profile.jpg" alt="profileImg">
+                <div class="name_job">
+                    <div class="name">Iman Zulhakim</div>
+                    <div class="job">Web designer</div>
+                </div>
+            </div>
+            <a href="{{ url_for('logout') }}" class="logout-link">
+                <i class='bx bx-log-out' id="log_out"></i>
+                <span class="links_name">Logout</span>
+            </a>
+        </li>
+    </ul>
+</div>
+<div class="content">
+    {% block content %}
+        <!-- This is where the content from child templates will be inserted -->
+    {% endblock %}
+</div>
+<script src="../static/js/scripts.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</body>
+</html>

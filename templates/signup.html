@@ -283,9 +283,9 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            height: 100vh;
+            height: 130vh;
             margin: 0;
-            overflow: hidden;
+
         }
 
         * {
@@ -336,10 +336,13 @@
             width: 50%;
         }
 
-        .container {
-            width: 50%;
-            padding: 20px;
+        .form-container {
             background-color: white;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 20px;
+            border: 1px solid #ccc;
+
         }
 
         .clearfix::after {
@@ -371,32 +374,37 @@
 </head>
 <body>
 
-    <form action="/signup" method="post" style="border:1px solid #ccc" class="container" onsubmit="return validatePassword()">
-        <h1>Sign Up</h1>
-        <p>Please fill in this form to create an account.</p>
-        <hr>
-        <label for="name"><b>Name</b></label>
-        <input type="text" placeholder="Enter Name" name="name" required>
+<form action="/signup" method="post" class="form-container"
+      onsubmit="return validatePassword()">
+    <h1>Sign Up</h1>
+    <p>Please fill in this form to create an account.</p>
+    <hr>
+    <label for="name"><b>Name</b></label>
+    <input type="text" placeholder="Enter Name" name="name" required>
 
-        <label for="email"><b>Email</b></label>
-        <input type="text" placeholder="Enter Email" name="email" required>
+    <label for="nric"><b>IC Number</b></label>
+    <input type="text" name="nric" id="nric" maxlength="14" placeholder="YYMMDD-BP-###G" required>
 
-        <label for="psw"><b>Password</b></label>
-        <input type="password" placeholder="Enter Password" name="psw" id="psw" required>
+    <label for="email"><b>Email</b></label>
+    <input type="text" placeholder="Enter Email" name="email" required>
 
-        <label for="psw-repeat"><b>Repeat Password</b></label>
-        <input type="password" placeholder="Repeat Password" name="psw-repeat" id="psw-repeat" required>
-        <!-- Add the following div inside your form for reCAPTCHA -->
-        <div class="g-recaptcha" data-sitekey="6LdO3jIpAAAAABLMtJ1Q5hxaO_3JPlFVZKBInOTQ"></div>
-        <label>
-            <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px"> Remember me
-        </label>
+    <label for="psw"><b>Password</b></label>
+    <input type="password" placeholder="Enter Password" name="psw" id="psw" required>
 
-        <div class="clearfix">
-            <button onclick="document.location='/'" type="button" class="cancelbtn">Cancel</button>
-            <button type="submit" class="signupbtn">Sign Up</button>
-        </div>
-    </form>
+    <label for="psw-repeat"><b>Repeat Password</b></label>
+    <input type="password" placeholder="Repeat Password" name="psw-repeat" id="psw-repeat" required>
+
+    <div class="g-recaptcha" data-sitekey="6LdO3jIpAAAAABLMtJ1Q5hxaO_3JPlFVZKBInOTQ"></div>
+    <label>
+        <input type="checkbox" checked="checked" name="remember" style="margin-bottom:15px">
+        Remember me
+    </label>
+
+    <div class="clearfix">
+        <button onclick="document.location='/'" type="button" class="cancelbtn">Cancel</button>
+        <button type="submit" class="signupbtn">Sign Up</button>
+    </div>
+</form>
 
 </body>
 </html>

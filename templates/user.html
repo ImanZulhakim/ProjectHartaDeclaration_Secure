@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+{% extends "base_admin.html" %}
+
+{% block content %}
+    <style>
+        body {
+            background-image: url("{{url_for('static', filename='images/background.jpg')}}");
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+
+    <link rel="stylesheet"
+          href="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.css">
+
+    <link href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}" rel="stylesheet">
+
+    <section class="home-section">
+        <div class="container">
+            <div class="text-center">
+                <h1>Pengurusan Pengguna</h1>
+            </div>
+            <div class="container">
+                <div class="row">
+                    <div class="well col-md-12">
+                        <h2>Senarai Pengguna
+                            <button type="button" class="btn btn-success pull-right"
+                                    data-toggle="modal"
+                                    data-target="#myModal">Tambah
+                            </button>
+                        </h2>
+
+                        <table class="table table-striped">
+                            <tr>
+                                <th>Bil</th>
+                                <th>Email</th>
+                                <th>Password</th>
+                                <th>Nama Pengguna</th>
+                                <th>Nombor IC</th>
+                            </tr>
+                            {% for row in harta %}
+                                <tr>
+                                    <td>{{ row[0] }}</td>
+                                    <td>{{ row[1] }}</td>
+                                    <td>{{ row[2] }}</td>
+                                    <td style="width: 200px;">{{ row[3] }}</td>
+                                    <td style="width: 200px;">{{ row[4] }}</td>
+                                    <td>
+                                        <a href="/update_user/{{ row[0] }}" class="btn btn-warning
+                                        btn-xs"
+                                           data-toggle="modal" data-target="#modaledit{{ row[0] }}">Edit</a>
+                                        <button class="btn btn-danger btn-xs" onclick="deleteUser
+                                                ({{ row[0] }})">
+                                            Padam
+                                        </button>
+                                    </td>
+
+                                </tr>
+                            {% endfor %}
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
+    <!-- Insert user -->
+    <div id="myModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Pengurusan Pengguna</h4>
+                </div>
+                <div class="modal-body">
+                    <form id="draftForm" method="POST" action="{{ url_for('insert_user') }}"
+                          enctype="multipart/form-data">
+                        <div class="form-group">
+                            <label>Email:</label>
+                            <input type="text" class="form-control" name="email" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Password:</label>
+                            <input type="text" class="form-control" name="password" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nama Pengguna:</label>
+                            <input type="text" class="form-control" name="name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Nombor IC:</label>
+                            <input type="text" class="form-control" name="nric" required>
+                        </div>
+
+                        <div class="form-group">
+                            <button class="btn btn-primary" type="button" data-toggle="modal"
+                                    data-target="#draftModal"
+                                    onclick="showDraftDataPengguna()">
+                                Preview Rekod
+                            </button>
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Update user -->
+    {% for row in user %}
+        <div id="modaledit{{ row[0] }}" class="modal fade" role="dialog">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal">x</button>
+                        <h4 class="modal-title">Kemas Kini Data</h4>
+                    </div>
+                    <div class="modal-body">
+                        <form action="{{ url_for('update_user') }}" method="POST">
+                            <div class="form-group">
+                                <label>Email:</label>
+                                <label>
+                                    <input type="text" class="form-control" name="email"
+                                           value="{{ row[1] }}">
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>Password:</label>
+                                <label>
+                                    <input type="text" class="form-control" name="password"
+                                           value="{{ row[2] }}">
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>Nama Pengguna:</label>
+                                <label>
+                                    <input type="text" class="form-control" name="name"
+                                           value="{{ row[3] }}">
+                                </label>
+                            </div>
+                            <div class="form-group">
+                                <label>Nombor IC:</label>
+                                <label>
+                                    <input type="text" class="form-control" name="name"
+                                           value="{{ row[4] }}">
+                                </label>
+                            </div>
+
+                            <div class="form-group">
+                                <button class="btn btn-primary" type="submit">Update</button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+
+
+    <!-- Draft Modal -->
+    <div id="draftModal" class="modal fade" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal">&times;</button>
+                    <h4 class="modal-title">Review Rekod</h4>
+                </div>
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Email:</label>
+                        <p id="draft_email"></p>
+                    </div>
+                    <div class="form-group">
+                        <label>Password:</label>
+                        <p id="draft_password"></p>
+                    </div>
+                    <div class="form-group">
+                        <label>Nama Pengguna:</label>
+                        <p id="draft_name"></p>
+                    </div>
+                    <div class="form-group">
+                        <label>Nombor IC:</label>
+                        <p id="draft_nric"></p>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="saveData()">Hantar
+                    </button>
+                    <button type="button" class="btn btn-default" data-dismiss="modal">Batal
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/jquery-3.2.1.min.js') }}"></script>
+    <script type="text/javascript"
+            src="{{ url_for('static', filename='js/bootstrap.min.js') }}"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.all.min.js"></script>
+
+{% endblock %}

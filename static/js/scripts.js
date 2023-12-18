@@ -43,6 +43,35 @@ function deleteHarta(bil) {
     });
 }
 
+
+function deleteUser(bil) {
+    Swal.fire({
+        title: 'Are you sure?',
+        text: "You won't be able to revert this!",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Setuju!'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            Swal.fire(
+                'Deleted!',
+                'Pengguna Berjaya Dipadam!',
+                'success'
+            ).then(() => {
+                // If user confirms, trigger the form submission for deleting the harta
+                const form = document.createElement('form');
+                form.method = 'POST';
+                form.action = '/delete_user/' + bil;
+                document.body.appendChild(form);
+                form.submit();
+            });
+        }
+    });
+}
+
+
 // Function to show draft data in the draft modal
 function showDraftData() {
     $("#draft_jenis").text($("#draftForm select[name='jenis']").val());
@@ -50,6 +79,14 @@ function showDraftData() {
     $("#draft_no_fail").text($("#draftForm input[name='failNo']").val());
     $("#draft_namaPasangan").text($("#draftForm input[name='namaPasangan']").val());
     $("#draft_kategori").text($("#draftForm input[name='kategori']").val());
+}
+
+
+function showDraftDataPengguna() {
+    $("#draft_email").text($("#draftForm input[name='email']").val());
+    $("#draft_password").text($("#draftForm input[name='password']").val());
+    $("#draft_name").text($("#draftForm input[name='name']").val());
+    $("#draft_nric").text($("#draftForm input[name='nric']").val());
 }
 
 function updateViewFileLink() {
@@ -162,3 +199,28 @@ function showCancelledDialog() {
         icon: "error"
     });
 }
+
+// Code for JavaScript to start a timer when the page loads or when the user logs in.
+// Reset the timer whenever there is user activity.
+
+var logoutTimer;
+
+function resetLogoutTimer() {
+    clearTimeout(logoutTimer);
+    logoutTimer = setTimeout(logout, 15 * 60 * 1000);  // 15 minutes timeout (adjust as needed)
+}
+
+function logout() {
+    // Implement logout logic here, e.g., redirect to logout route
+    window.location.href = "/logout";
+}
+
+// Start the timer on page load
+document.addEventListener("DOMContentLoaded", function () {
+    resetLogoutTimer();
+});
+
+// Reset the timer on user activity
+document.addEventListener("mousemove", resetLogoutTimer);
+document.addEventListener("keydown", resetLogoutTimer);
+// Add more events based on your application's interactivity

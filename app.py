@@ -1,16 +1,22 @@
-from flask import Flask, render_template, request, session, flash, redirect, url_for, send_file, make_response
+from flask import Flask, render_template, request, session, flash, redirect, url_for, send_file, \
+    make_response
 import logging
 import pymysql
 import requests
 from werkzeug.utils import secure_filename
+from datetime import timedelta
 
 app = Flask(__name__)
 app.secret_key = "flash_message"
 
+# Configure session timeout
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
+# Set session timeout to 5 minutes
+
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'Shazlyn287969@',
+    'password': 'root',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -30,13 +36,13 @@ def login():
         if not validate_recaptcha(recaptcha_response):
             flash('reCAPTCHA verification failed. Please try again.')
             return redirect(url_for('login'))
-        username = request.form['username']
+        email = request.form['email']
         password = request.form['password']
 
         # Logging the username and password for debugging
-        logging.debug(f"Username: {username}, Password: {password}")
+        logging.debug(f"Email: {email}, Password: {password}")
 
-        if username == 'admin' and password == 'admin':
+        if email == 'admin' and password == 'admin':
             # Admin login
             # Inside the login route, after successful authentication
             session['name'] = ['name']
@@ -48,13 +54,14 @@ def login():
         # Check if the user exists in the database and validate credentials
         try:
             cur = connection.cursor()
-            cur.execute("SELECT * FROM user WHERE email = %s AND password = %s", (username, password))
+            cur.execute("SELECT * FROM user WHERE email = %s AND password = %s",
+                        (email, password))
             user = cur.fetchone()
             cur.close()
 
             if user:
                 # User login
-                session['email'] = user[0]  # Assuming email is at index 1 in the user tuple
+                session['email'] = user[1]  # Assuming email is at index 1 in the user tuple
                 flash('User login successful')
                 return redirect(url_for('main'))
             else:
@@ -66,6 +73,7 @@ def login():
 
     return render_template('login.html')
 
+
 @app.route('/signup', methods=['GET', 'POST'])
 def signup():
     if request.method == 'POST':
@@ -76,6 +84,7 @@ def signup():
                 flash('reCAPTCHA verification failed. Please try again.')
                 return redirect(url_for('signup'))
         name = request.form['name']
+        nric = request.form['nric']
         email = request.form['email']
         password = request.form['psw']
         repeat_password = request.form['psw-repeat']
@@ -89,8 +98,8 @@ def signup():
         try:
             cur = connection.cursor()
             # Insert user data into the database
-            cur.execute("INSERT INTO user (name, email, password) VALUES (%s,%s, %s)",
-                        (name, email, password))
+            cur.execute("INSERT INTO user (name, nric, email, password) VALUES (%s, %s, %s, %s)",
+                        (name, nric, email, password))
             connection.commit()
             cur.close()
 
@@ -104,12 +113,14 @@ def signup():
     # This part is necessary to handle GET requests and POST requests that do not satisfy conditions
     return render_template('signup.html')
 
+
 def validate_recaptcha(response):
     secret_key = '6LdO3jIpAAAAABSvzaRxVQ1ydFfKM2JxmejIfZq_'  # Replace with your actual Secret Key
     payload = {'secret': secret_key, 'response': response}
     r = requests.post('https://www.google.com/recaptcha/api/siteverify', data=payload)
     result = r.json()
     return result['success']
+
 
 @app.route('/logout')
 def logout():
@@ -118,6 +129,7 @@ def logout():
 
     # Redirect to the login page
     return redirect(url_for('login'))
+
 
 @app.route('/main')
 def main():
@@ -131,21 +143,24 @@ def main():
             # Admin can see all user harta information
             cur = connection.cursor()
             # cur.execute("SELECT * FROM harta")
-            cur.execute("SELECT harta.*, user.name FROM harta JOIN user ON harta.email = user.email")
+            cur.execute(
+                "SELECT harta.*, user.name FROM harta JOIN user ON harta.email = user.email")
             data = cur.fetchall()
             cur.close()
+            return render_template('admin_index.html', harta=data)
         else:
             # Non-admin user can see their own harta information
             cur = connection.cursor()
             cur.execute("SELECT * FROM harta WHERE email=%s", (email,))
             data = cur.fetchall()
             cur.close()
+            return render_template('user_index.html', harta=data)
 
-        return render_template('index.html', harta=data)
     except Exception as e:
         logging.exception("Error fetching harta data:")
         flash("An error occurred while fetching harta data.")
         return redirect(url_for('harta'))
+
 
 @app.route('/harta')
 def harta():
@@ -157,36 +172,48 @@ def harta():
         email = session['email']
         if email == 'admin':
             # Admin can see all user harta information
-            #cur = mysql.cursor()
+            # cur = mysql.cursor()
             cur = connection.cursor()
             # cur.execute("SELECT * FROM harta")
-            cur.execute("SELECT harta.*, user.name FROM harta JOIN user ON harta.email = user.email")
+            cur.execute(
+                "SELECT harta.*, user.name FROM harta JOIN user ON harta.email = user.email")
             data = cur.fetchall()
             cur.close()
+            # Fetch jenis options from the database (replace this with your actual query)
+            jenis_options = ["Tanah", "Kereta", "Motosikal"]
+            # Fetch kategori options from the database (replace this with your actual query)
+            kategori_options = ["Sendiri", "Bersama"]
+            name = session.get('name', 'User')
+
+            return render_template('harta_admin.html', harta=data, name=name,
+                                   jenis_options=jenis_options,
+                                   kategori_options=kategori_options)
+
+
         else:
             # Non-admin user can see their own harta information
-            #cur = mysql.cursor()
+            # cur = mysql.cursor()
             cur = connection.cursor()
             cur.execute("SELECT * FROM harta WHERE email=%s", (email,))
             data = cur.fetchall()
             cur.close()
+            # Fetch jenis options from the database (replace this with your actual query)
+            jenis_options = ["Tanah", "Kereta", "Motosikal"]
+            # Fetch kategori options from the database (replace this with your actual query)
+            kategori_options = ["Sendiri", "Bersama"]
+            name = session.get('name', 'User')
 
-        # Fetch jenis options from the database (replace this with your actual query)
-        jenis_options = ["Tanah", "Kereta", "Motosikal"]
+            return render_template('harta_user.html', harta=data, name=name,
+                                   jenis_options=jenis_options,
+                                   kategori_options=kategori_options)
 
-        # Fetch kategori options from the database (replace this with your actual query)
-        kategori_options = ["Sendiri", "Bersama"]
-
-        name = session.get('name', 'User')
-
-        return render_template('harta.html', harta=data, name=name, jenis_options=jenis_options, kategori_options=kategori_options)
     except Exception as e:
         logging.exception("Error fetching harta data:")
         flash("An error occurred while fetching harta data.")
         return redirect(url_for('harta'))
 
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}  # Add allowed file extensions
 
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}  # Add allowed file extensions
 
 
 @app.route('/download_harta/<int:bil>')
@@ -253,6 +280,8 @@ def insert_harta():
             jenis = request.form['jenis']
             kategori = request.form['kategori']
 
+            print("Email:", email)
+
             # Check if the post request has the file part
             if 'file' not in request.files:
                 flash('No file part')
@@ -301,7 +330,6 @@ def insert_harta():
         return redirect(url_for('harta'))
 
 
-
 @app.route('/update_harta', methods=['POST'])
 def update_harta():
     if request.method == 'POST':
@@ -313,10 +341,11 @@ def update_harta():
             jenis = request.form['jenis']
             kategori = request.form['kategori']
 
-            #cur = mysql.cursor()
+            # cur = mysql.cursor()
             cur = connection.cursor()
-            cur.execute("UPDATE harta SET tahun=%s, failNo=%s, namaPasangan=%s, jenis=%s, kategori=%s WHERE bil=%s",
-                        (tahun, failNo, namaPasangan, jenis, kategori, bil))
+            cur.execute(
+                "UPDATE harta SET tahun=%s, failNo=%s, namaPasangan=%s, jenis=%s, kategori=%s WHERE bil=%s",
+                (tahun, failNo, namaPasangan, jenis, kategori, bil))
             flash("Harta Berjaya Dikemas Kini!")
             connection.commit()
             return redirect(url_for('harta'))
@@ -325,6 +354,7 @@ def update_harta():
             logging.error("Error details: %s", str(e))
             flash("Harta Gagal Dikemas Kini! An error occurred.")
             return redirect(url_for('harta'))
+
 
 @app.route('/delete_harta/<int:bil>', methods=['POST'])
 def delete_harta(bil):
@@ -349,6 +379,101 @@ def delete_harta(bil):
         logging.exception("Harta Gagal Dipadam!")
         flash("Ralat Semasa Memadam Harta!")
         return redirect(url_for('harta'))
+
+
+@app.route('/user')
+def user():
+    try:
+        if 'email' not in session:
+            flash('You need to sign up first.')
+            return redirect(url_for('login'))
+
+        email = session['email']
+        if email == 'admin':
+            # Admin can see all user harta information
+            # cur = mysql.cursor()
+            cur = connection.cursor()
+            # cur.execute("SELECT * FROM harta")
+            cur.execute(
+                "SELECT * FROM user")
+            data = cur.fetchall()
+            cur.close()
+            name = session.get('name', 'User')
+
+            return render_template('user.html', harta=data, name=name)
+
+    except Exception as e:
+        logging.exception("Error fetching harta data:")
+        flash("An error occurred while fetching harta data.")
+        return redirect(url_for('user'))
+
+
+@app.route('/insert_user', methods=['POST'])
+def insert_user():
+    try:
+        email = request.form['email']
+        password = request.form['password']
+        name = request.form['name']
+        nric = request.form['nric']
+
+        # Insert harta into the database
+        cur = connection.cursor()
+        cur.execute(
+            "INSERT INTO user (email, password, name, nric) VALUES "
+            "(%s, %s, %s, %s)",
+            (email, password, name, nric))
+        connection.commit()
+
+        flash("Pengguna Berjaya DItambah!")
+        return redirect(url_for('user'))
+
+    except Exception as e:
+        logging.exception("An error occurred while processing the file upload for 'harta'.")
+        logging.error("Error details: %s", str(e))
+        flash("Pengguna gagal ditambah!")
+        return redirect(url_for('user'))
+
+
+@app.route('/update_user', methods=['POST'])
+def update_user():
+    if request.method == 'POST':
+        try:
+            bil = request.form['bil']
+            email = request.form['email']
+            password = request.form['password']
+            name = request.form['name']
+            nric = request.form['nric']
+
+            cur = connection.cursor()
+            cur.execute(
+                "UPDATE user SET email=%s, password=%s, name=%s, nric=%s"
+                "WHERE "
+                "bil=%s",
+                (password, name, nric, email, bil))
+
+            flash("Maklumat Pengguna Berjaya DiKemas Kini!")
+            connection.commit()
+            return redirect(url_for('user'))
+        except Exception as e:
+            logging.exception("An error occurred while updating 'user'.")
+            logging.error("Error details: %s", str(e))
+            flash("Maklumat Pengguna Gagal Dikemas Kini! An error occurred.")
+            return redirect(url_for('user'))
+
+
+@app.route('/delete_user/<int:bil>', methods=['POST'])
+def delete_user(bil):
+    try:
+        cur = connection.cursor()
+        cur.execute("DELETE FROM user WHERE bil=%s", (bil,))
+        connection.commit()
+        flash("Pengguna Berjaya Dipadam!")
+        return redirect(url_for('user'))
+
+    except Exception as e:
+        logging.exception("Pengguna Gagal Dipadam!")
+        flash("Ralat Semasa Memadam Pengguna!")
+        return redirect(url_for('user'))
 
 
 if __name__ == "__main__":
