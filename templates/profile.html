@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+{% extends "base.html" %}
+
+{% block content %}
+
+    <section class="home-section">
+        <div class="container">
+            <div class="text-center">
+                <h1>Profile Settings</h1>
+            </div>
+            <div style="display: flex; justify-content: center; align-items: center;">
+                <div class="well col-md-6">
+                    <div class="p-3 py-5">
+                        <div class="d-flex justify-content-between align-items-center mb-3">
+                            <form method="POST">
+                                <div class="row mt-3">
+                                    <div class="col-md-6"><label class="labels">Name</label>
+                                        <input type="text" class="form-control" value="{{ user[3] }}" readonly>
+                                    </div>
+                                    <div class="col-md-12"><label class="labels">Email</label>
+                                        <input type="text" class="form-control" value="{{ user[1] }}" readonly>
+                                    </div>
+                                    <div class="col-md-12"><label class="labels">Password</label>
+                                        <input type="password" name="password" id="password"
+                                               pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z])(?=.*[\W]).{8,}" autocomplete="current-password"
+                                               spellcheck="false" autocapitalize="off"
+                                               class="form-control rounded-right"
+                                               value="{{ user[2] }}" required>
+                                        <div class="input-group-append">
+                                            <span class="input-group-text " onclick="password_show_hide();">
+                                                <i class="bi-eye" id="show_eye"></i>
+                                                <i class="bi-eye-slash d-none" id="hide_eye"></i>
+                                            </span>
+                                        </div>
+                                        <p>
+                                            Format:<br>
+                                            Your password must contain at least one digit, one lowercase letter, one uppercase letter, one special
+                                            character, and be at least 8 characters long.
+                                        </p>
+                                        <!-- Password -->
+                                    </div>
+                                </div>
+                                <div class="mt-5 text-center">
+                                    <button class="btn btn-primary profile-button" type="submit">Save Profile</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+{% endblock %}

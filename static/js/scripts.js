@@ -15,6 +15,16 @@ function menuBtnChange() {
 }
 
 
+// // Add an event listener to the button
+// button.addEventListener("click", function () {
+//     // Toggle the 'open' class on the sidebar
+//     sidebar.classList.toggle("open");
+//
+//     // Log the current class list of the sidebar
+//     console.log(sidebar.classList);
+// });
+
+
 // Function to show the SweetAlert confirmation dialog for deleting a harta
 function deleteHarta(bil) {
     Swal.fire({
@@ -81,6 +91,14 @@ function showDraftData() {
     $("#draft_kategori").text($("#draftForm input[name='kategori']").val());
 }
 
+function showDraftAdminHartaData() {
+    $("#draft_email").text($("#draftForm select[name='email']").val());
+    $("#draft_jenis").text($("#draftForm select[name='jenis']").val());
+    $("#draft_tahun").text($("#draftForm input[name='tahun']").val());
+    $("#draft_no_fail").text($("#draftForm input[name='failNo']").val());
+    $("#draft_namaPasangan").text($("#draftForm input[name='namaPasangan']").val());
+    $("#draft_kategori").text($("#draftForm input[name='kategori']").val());
+}
 
 function showDraftDataPengguna() {
     $("#draft_email").text($("#draftForm input[name='email']").val());
@@ -224,3 +242,38 @@ document.addEventListener("DOMContentLoaded", function () {
 document.addEventListener("mousemove", resetLogoutTimer);
 document.addEventListener("keydown", resetLogoutTimer);
 // Add more events based on your application's interactivity
+
+
+$(document).ready(function () {
+    $("#selectEmail").change(function () {
+        var email = $(this).val();
+        $.ajax({
+            url: '/get_username',
+            data: {'email': email},
+            type: 'POST',
+            success: function (response) {
+                $("#username").html(response);
+            },
+            error: function (error) {
+                console.log(error);
+            }
+        });
+    });
+});
+
+
+function password_show_hide() {
+    var x = document.getElementById("password");
+    var show_eye = document.getElementById("show_eye");
+    var hide_eye = document.getElementById("hide_eye");
+    hide_eye.classList.remove("d-none");
+    if (x.type === "password") {
+        x.type = "text";
+        show_eye.style.display = "none";
+        hide_eye.style.display = "block";
+    } else {
+        x.type = "password";
+        show_eye.style.display = "block";
+        hide_eye.style.display = "none";
+    }
+}

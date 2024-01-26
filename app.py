@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, session, flash, redirect, url_for, send_file, \
+from flask import Flask, render_template, request, session, flash, redirect, url_for, \
     make_response
 import logging
 import pymysql
@@ -10,7 +10,7 @@ app = Flask(__name__)
 app.secret_key = "flash_message"
 
 # Configure session timeout
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 # Set session timeout to 5 minutes
 
 # Configure database connection
@@ -56,12 +56,12 @@ def login():
             cur = connection.cursor()
             cur.execute("SELECT * FROM user WHERE email = %s AND password = %s",
                         (email, password))
-            user = cur.fetchone()
+            curUser = cur.fetchone()
             cur.close()
 
             if user:
                 # User login
-                session['email'] = user[1]  # Assuming email is at index 1 in the user tuple
+                session['email'] = curUser[1]  # Assuming email is at index 1 in the user tuple
                 flash('User login successful')
                 return redirect(url_for('main'))
             else:
@@ -74,44 +74,44 @@ def login():
     return render_template('login.html')
 
 
-@app.route('/signup', methods=['GET', 'POST'])
-def signup():
-    if request.method == 'POST':
-        if request.method == 'POST':
-            # Validate reCAPTCHA
-            recaptcha_response = request.form.get('g-recaptcha-response')
-            if not validate_recaptcha(recaptcha_response):
-                flash('reCAPTCHA verification failed. Please try again.')
-                return redirect(url_for('signup'))
-        name = request.form['name']
-        nric = request.form['nric']
-        email = request.form['email']
-        password = request.form['psw']
-        repeat_password = request.form['psw-repeat']
-
-        # Simple validation
-        if password != repeat_password:
-            flash('Passwords do not match')
-            return redirect(url_for('signup'))
-
-        # Insert into database
-        try:
-            cur = connection.cursor()
-            # Insert user data into the database
-            cur.execute("INSERT INTO user (name, nric, email, password) VALUES (%s, %s, %s, %s)",
-                        (name, nric, email, password))
-            connection.commit()
-            cur.close()
-
-            flash('Account successfully created')
-            return redirect(url_for('login'))
-        except Exception as e:
-            logging.exception("Error during signup")
-            flash('Signup failed')
-            return redirect(url_for('signup'))
-
-    # This part is necessary to handle GET requests and POST requests that do not satisfy conditions
-    return render_template('signup.html')
+# @app.route('/signup', methods=['GET', 'POST'])
+# def signup():
+#     if request.method == 'POST':
+#         if request.method == 'POST':
+#             # Validate reCAPTCHA
+#             recaptcha_response = request.form.get('g-recaptcha-response')
+#             if not validate_recaptcha(recaptcha_response):
+#                 flash('reCAPTCHA verification failed. Please try again.')
+#                 return redirect(url_for('signup'))
+#         name = request.form['name']
+#         nric = request.form['nric']
+#         email = request.form['email']
+#         password = request.form['psw']
+#         repeat_password = request.form['psw-repeat']
+#
+#         # Simple validation
+#         if password != repeat_password:
+#             flash('Passwords do not match')
+#             return redirect(url_for('signup'))
+#
+#         # Insert into database
+#         try:
+#             cur = connection.cursor()
+#             # Insert user data into the database
+#             cur.execute("INSERT INTO user (name, nric, email, password) VALUES (%s, %s, %s, %s)",
+#                         (name, nric, email, password))
+#             connection.commit()
+#             cur.close()
+#
+#             flash('Account successfully created')
+#             return redirect(url_for('login'))
+#         except Exception as e:
+#             logging.exception("Error during signup")
+#             flash('Signup failed')
+#             return redirect(url_for('signup'))
+#
+#     # This part is necessary to handle GET requests and POST requests that do not satisfy conditions
+#     return render_template('signup.html')
 
 
 def validate_recaptcha(response):
@@ -135,7 +135,7 @@ def logout():
 def main():
     try:
         if 'email' not in session:
-            flash('You need to sign up first.')
+            flash('You need to log in first!')
             return redirect(url_for('login'))
 
         email = session['email']
@@ -166,7 +166,7 @@ def main():
 def harta():
     try:
         if 'email' not in session:
-            flash('You need to sign up first.')
+            flash('You need to log in first.')
             return redirect(url_for('login'))
 
         email = session['email']
@@ -177,7 +177,12 @@ def harta():
             # cur.execute("SELECT * FROM harta")
             cur.execute(
                 "SELECT harta.*, user.name FROM harta JOIN user ON harta.email = user.email")
-            data = cur.fetchall()
+            hartaData = cur.fetchall()
+
+            cur.execute(
+                "SELECT * FROM user")
+            userData = cur.fetchall()
+
             cur.close()
             # Fetch jenis options from the database (replace this with your actual query)
             jenis_options = ["Tanah", "Kereta", "Motosikal"]
@@ -185,7 +190,7 @@ def harta():
             kategori_options = ["Sendiri", "Bersama"]
             name = session.get('name', 'User')
 
-            return render_template('harta_admin.html', harta=data, name=name,
+            return render_template('harta_admin.html', harta=hartaData, user=userData, name=name,
                                    jenis_options=jenis_options,
                                    kategori_options=kategori_options)
 
@@ -213,7 +218,7 @@ def harta():
         return redirect(url_for('harta'))
 
 
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif'}  # Add allowed file extensions
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif', 'txt'}  # Add allowed file extensions
 
 
 @app.route('/download_harta/<int:bil>')
@@ -272,35 +277,27 @@ def allowed_file(filename):
 @app.route('/insert_harta', methods=['POST'])
 def insert_harta():
     try:
-        if 'email' in session:
-            email = session['email']
+        # Check if the current user is an admin
+        email = session['email']
+        if email == 'admin':
+            email = request.form['email']
             tahun = request.form['tahun']
             failNo = request.form['failNo']
             namaPasangan = request.form['namaPasangan']
             jenis = request.form['jenis']
             kategori = request.form['kategori']
 
-            print("Email:", email)
-
-            # Check if the post request has the file part
+            # Check if the post-request has the file part
             if 'file' not in request.files:
                 flash('No file part')
                 return redirect(request.url)
 
             file = request.files['file']
 
-            # If user does not select file, the browser also submits an empty part without filename
+            # If a user does not select file, the browser also submits an empty part without filename
             if file.filename == '':
                 flash('No selected file')
                 return redirect(request.url)
-
-            # Check if the current user is an admin
-            if 'admin' in session and session['admin']:
-                # Admin can specify the user's email when adding harta
-                user_email = request.form.get('user_email', '')  # Get the user's email from the form
-            else:
-                # Regular user can only insert harta for themselves
-                user_email = email
 
             if file and allowed_file(file.filename):
                 filename = secure_filename(file.filename)
@@ -311,15 +308,55 @@ def insert_harta():
                 cur.execute(
                     "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email) VALUES "
                     "(%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, user_email))
+                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email))
                 connection.commit()
 
                 flash("Harta Berjaya Diisytihar!")
                 return redirect(url_for('harta'))
 
+            else:
+                flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif")
+                return redirect(request.url)
+
         else:
-            flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif")
-            return redirect(request.url)
+            email = session['email']
+            tahun = request.form['tahun']
+            failNo = request.form['failNo']
+            namaPasangan = request.form['namaPasangan']
+            jenis = request.form['jenis']
+            kategori = request.form['kategori']
+
+            # Check if the post-request has the file part
+            if 'file' not in request.files:
+                flash('No file part')
+                return redirect(request.url)
+
+            file = request.files['file']
+
+            # If a user does not select file, the browser also submits an empty part without filename
+            if file.filename == '':
+                flash('No selected file')
+                return redirect(request.url)
+
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file_data = file.read()
+
+                # Insert harta into the database
+                cur = connection.cursor()
+                cur.execute(
+                    "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email) VALUES "
+                    "(%s, %s, %s, %s, %s, %s, %s, %s)",
+                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email))
+                connection.commit()
+
+                flash("Harta Berjaya Diisytihar!")
+                return redirect(url_for('harta'))
+
+            else:
+                flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif")
+                return redirect(request.url)
+
 
     except Exception as e:
         logging.exception("An error occurred while processing the file upload for 'harta'.")
@@ -328,6 +365,16 @@ def insert_harta():
                       namaPasangan, jenis, kategori)
         flash("Harta Gagal Diisytihar! An error occurred.")
         return redirect(url_for('harta'))
+
+
+@app.route('/get_username', methods=['POST'])
+def get_username():
+    email = request.form.get('email')
+    cur = connection.cursor()
+    cur.execute("SELECT name FROM user WHERE email = %s", [email])
+    data = cur.fetchone()
+    cur.close()
+    return data[0] if data else ''
 
 
 @app.route('/update_harta', methods=['POST'])
@@ -474,6 +521,37 @@ def delete_user(bil):
         logging.exception("Pengguna Gagal Dipadam!")
         flash("Ralat Semasa Memadam Pengguna!")
         return redirect(url_for('user'))
+
+
+@app.route('/profile', methods=['GET', 'POST'])
+def profile():
+    try:
+        email = session['email']
+        cur = connection.cursor()
+        if request.method == "POST":
+            if 'email' not in session:
+                flash('You need to log in first.')
+                return redirect(url_for('login'))
+
+            # Non-admin user can see their own profile information
+            # Get the updated data from the form
+            password = request.form.get("password")
+
+            # Update the user's data in the database
+            cur.execute("UPDATE user SET password=%s WHERE email=%s", (password, email))
+            connection.commit()
+
+        # Fetch the user's data from the database
+        cur.execute("SELECT * FROM user WHERE email=%s", (email,))
+        data = cur.fetchone()
+        cur.close()
+        name = session.get('name', 'User')
+        return render_template('profile.html', user=data, name=name)
+
+    except Exception as e:
+        logging.exception("Error fetching harta data:")
+        flash("An error occurred while fetching harta data.")
+        return redirect(url_for('login'))
 
 
 if __name__ == "__main__":
