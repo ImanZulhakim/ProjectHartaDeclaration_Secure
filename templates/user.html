@@ -40,14 +40,21 @@
                                 <th>Password</th>
                                 <th>Nama Pengguna</th>
                                 <th>Nombor IC</th>
+                                <th>Modifikasi oleh</th>
+                                <th>Modifikasi Pada</th>
                             </tr>
                             {% for row in harta %}
                                 <tr>
                                     <td>{{ row[0] }}</td>
                                     <td>{{ row[1] }}</td>
                                     <td>{{ row[2] }}</td>
+
                                     <td style="width: 200px;">{{ row[3] }}</td>
                                     <td style="width: 200px;">{{ row[4] }}</td>
+                                    <td>{{ row[-2] }}</td>
+                                    <td>{{ row[-1] }}</td>
+
+
                                     <td>
                                         <a href="/update_user/{{ row[0] }}" class="btn btn-warning
                                         btn-xs"

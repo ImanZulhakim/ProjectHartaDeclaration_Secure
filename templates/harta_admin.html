@@ -58,6 +58,8 @@
                                 <th>Jenis Perisytiharan Harta</th>
                                 <th>Kategori Perisytiharan Harta</th>
                                 <th>Fail Sokongan</th>
+                                <th>Modifikasi Terakhir Oleh</th>
+                                <th>Modifikasi Terakhir Pada</th>
                             </tr>
                             {% for row in harta %}
                                 <tr>
@@ -69,6 +71,8 @@
                                     <td>{{ row[4] }}</td>
                                     <td>{{ row[5] }}</td>
                                     <td>{{ row[7] }}</td>
+                                    <td>{{ row[-3] }}</td> <!-- Display last modified by -->
+                                    <td>{{ row[-2] }}</td>
                                     <td><a href="{{ url_for('download_harta', bil=row[0]) }}"
                                            class="btn btn-success btn-xs" download>Muat turun</a>
                                     </td>

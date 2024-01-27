@@ -19,7 +19,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'Hanum2002@',
+    'password': 'Shazlyn287969@',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -310,9 +310,9 @@ def insert_harta():
                 # Insert harta into the database
                 cur = connection.cursor()
                 cur.execute(
-                    "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email) VALUES "
-                    "(%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email))
+                    "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, last_modified_by, last_modified_at) VALUES "
+                    "(%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())",
+                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, email))
                 connection.commit()
 
                 flash("Harta Berjaya Diisytihar!")
@@ -349,9 +349,9 @@ def insert_harta():
                 # Insert harta into the database
                 cur = connection.cursor()
                 cur.execute(
-                    "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email) VALUES "
-                    "(%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email))
+                    "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, last_modified_by, last_modified_at) VALUES "
+                    "(%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())",
+                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, email))
                 connection.commit()
 
                 flash("Harta Berjaya Diisytihar!")
@@ -393,11 +393,15 @@ def update_harta():
             jenis = request.form['jenis']
             kategori = request.form['kategori']
 
-            # cur = mysql.cursor()
+            # Get the email of the user who is making the update
+            email = session['email']
+
+            # Update the harta entry and set last modification details
             cur = connection.cursor()
             cur.execute(
-                "UPDATE harta SET tahun=%s, failNo=%s, namaPasangan=%s, jenis=%s, kategori=%s WHERE bil=%s",
-                (tahun, failNo, namaPasangan, jenis, kategori, bil))
+                "UPDATE harta SET tahun=%s, failNo=%s, namaPasangan=%s, jenis=%s, kategori=%s, "
+                "last_modified_by=%s, last_modified_at=NOW() WHERE bil=%s",
+                (tahun, failNo, namaPasangan, jenis, kategori, email, bil))
             flash("Harta Berjaya Dikemas Kini!")
             connection.commit()
             return redirect(url_for('harta'))
@@ -406,7 +410,6 @@ def update_harta():
             logging.error("Error details: %s", str(e))
             flash("Harta Gagal Dikemas Kini! An error occurred.")
             return redirect(url_for('harta'))
-
 
 @app.route('/delete_harta/<int:bil>', methods=['POST'])
 def delete_harta(bil):
@@ -467,19 +470,19 @@ def insert_user():
         name = request.form['name']
         nric = request.form['nric']
 
-        # Insert harta into the database
+        # Insert user into the database
         cur = connection.cursor()
         cur.execute(
-            "INSERT INTO user (email, password, name, nric) VALUES "
-            "(%s, %s, %s, %s)",
-            (email, password, name, nric))
+            "INSERT INTO user (email, password, name, nric, last_modified_by, last_modified_at) VALUES "
+            "(%s, %s, %s, %s, %s, NOW())",
+            (email, password, name, nric, email))
         connection.commit()
 
         flash("Pengguna Berjaya DItambah!")
         return redirect(url_for('user'))
 
     except Exception as e:
-        logging.exception("An error occurred while processing the file upload for 'harta'.")
+        logging.exception("An error occurred while processing the file upload for 'user'.")
         logging.error("Error details: %s", str(e))
         flash("Pengguna gagal ditambah!")
         return redirect(url_for('user'))
@@ -487,30 +490,29 @@ def insert_user():
 
 @app.route('/update_user', methods=['POST'])
 def update_user():
-    if request.method == 'POST':
-        try:
-            bil = request.form['bil']
-            email = request.form['email']
-            password = request.form['password']
-            name = request.form['name']
-            nric = request.form['nric']
+        if request.method == 'POST':
+            try:
+                bil = request.form['bil']
+                email = request.form['email']
+                password = request.form['password']
+                name = request.form['name']
+                nric = request.form['nric']
 
-            cur = connection.cursor()
-            cur.execute(
-                "UPDATE user SET email=%s, password=%s, name=%s, nric=%s"
-                "WHERE "
-                "bil=%s",
-                (password, name, nric, email, bil))
+                # Update the user's data in the database and set last modification details
+                cur = connection.cursor()
+                cur.execute(
+                    "UPDATE user SET email=%s, password=%s, name=%s, nric=%s, "
+                    "last_modified_by=%s, last_modified_at=NOW() WHERE bil=%s",
+                    (email, password, name, nric, email, bil))
 
-            flash("Maklumat Pengguna Berjaya DiKemas Kini!")
-            connection.commit()
-            return redirect(url_for('user'))
-        except Exception as e:
-            logging.exception("An error occurred while updating 'user'.")
-            logging.error("Error details: %s", str(e))
-            flash("Maklumat Pengguna Gagal Dikemas Kini! An error occurred.")
-            return redirect(url_for('user'))
-
+                flash("Maklumat Pengguna Berjaya DiKemas Kini!")
+                connection.commit()
+                return redirect(url_for('user'))
+            except Exception as e:
+                logging.exception("An error occurred while updating 'user'.")
+                logging.error("Error details: %s", str(e))
+                flash("Maklumat Pengguna Gagal Dikemas Kini! An error occurred.")
+                return redirect(url_for('user'))
 
 @app.route('/delete_user/<int:bil>', methods=['POST'])
 def delete_user(bil):
@@ -611,6 +613,12 @@ def profile():
         flash("An error occurred while fetching harta data.")
         return redirect(url_for('login'))
 
+@app.route('/simulate_unauthorized_access')
+def simulate_unauthorized_access():
+    # Simulate an unauthorized access attempt
+    unauthorized_user_email = 'test@example.com'
+    logging.warning(f"Unauthorized user manipulation attempt by {unauthorized_user_email}")
+    return "Simulated Unauthorized Access"
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000, debug=False)
