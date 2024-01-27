@@ -516,15 +516,29 @@ def update_user():
 def delete_user(bil):
     try:
         cur = connection.cursor()
-        # Set is_active to False instead of deleting the row
+
+        # First, get the email of the user to be deleted
+        cur.execute("SELECT email FROM user WHERE bil = %s", (bil,))
+        user_data = cur.fetchone()
+        if user_data is None:
+            flash("User not found!")
+            return redirect(url_for('user'))
+
+        user_email = user_data[0]
+
+        # Delete all harta associated with this user
+        cur.execute("DELETE FROM harta WHERE email = %s", (user_email,))
+
+        # Set is_active to False for the user instead of deleting the row
         cur.execute("UPDATE user SET is_active = FALSE WHERE bil = %s", (bil,))
+
         connection.commit()
-        flash("Pengguna Berjaya Dipadam (Deactivated)!")
+        flash("Pengguna dan harta berkenaan telah Berjaya Dipadam (Deactivated)!")
         return redirect(url_for('user'))
 
     except Exception as e:
         logging.exception("Pengguna Gagal Dipadam (Failed to Deactivate)!")
-        flash("Ralat Semasa Memadam (Deactivating) Pengguna!")
+        flash("Ralat Semasa Memadam (Deactivating) Pengguna dan Harta Berkenaan!")
         return redirect(url_for('user'))
 
 
