@@ -5,7 +5,10 @@ import pymysql
 import requests
 from werkzeug.utils import secure_filename
 from datetime import timedelta
-
+from flask import send_file
+import pandas as pd
+import tempfile
+import os
 app = Flask(__name__)
 app.secret_key = "flash_message"
 
@@ -16,7 +19,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'root',
+    'password': 'Hanum2002@',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -274,6 +277,7 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
+
 @app.route('/insert_harta', methods=['POST'])
 def insert_harta():
     try:
@@ -377,6 +381,7 @@ def get_username():
     return data[0] if data else ''
 
 
+
 @app.route('/update_harta', methods=['POST'])
 def update_harta():
     if request.method == 'POST':
@@ -441,8 +446,7 @@ def user():
             # cur = mysql.cursor()
             cur = connection.cursor()
             # cur.execute("SELECT * FROM harta")
-            cur.execute(
-                "SELECT * FROM user")
+            cur.execute("SELECT * FROM user WHERE is_active = TRUE")
             data = cur.fetchall()
             cur.close()
             name = session.get('name', 'User')
@@ -512,15 +516,35 @@ def update_user():
 def delete_user(bil):
     try:
         cur = connection.cursor()
-        cur.execute("DELETE FROM user WHERE bil=%s", (bil,))
+        # Set is_active to False instead of deleting the row
+        cur.execute("UPDATE user SET is_active = FALSE WHERE bil = %s", (bil,))
         connection.commit()
-        flash("Pengguna Berjaya Dipadam!")
+        flash("Pengguna Berjaya Dipadam (Deactivated)!")
         return redirect(url_for('user'))
 
     except Exception as e:
-        logging.exception("Pengguna Gagal Dipadam!")
-        flash("Ralat Semasa Memadam Pengguna!")
+        logging.exception("Pengguna Gagal Dipadam (Failed to Deactivate)!")
+        flash("Ralat Semasa Memadam (Deactivating) Pengguna!")
         return redirect(url_for('user'))
+
+
+@app.route('/export_users')
+def export_users():
+    # Query all user data from the database, including the is_active status
+    cur = connection.cursor()
+    cur.execute("SELECT bil, email, password, name, nric, is_active FROM user")
+    users = cur.fetchall()
+    cur.close()
+
+    # Convert to DataFrame for easier Excel export
+    df = pd.DataFrame(users, columns=['Bil', 'Email', 'Password', 'Nama Pengguna', 'Nombor IC', 'IsActive'])
+
+    # Create a temporary directory and save the Excel file there
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
+        df.to_excel(tmp.name, index=False)
+
+        # Send the Excel file as attachment
+        return send_file(tmp.name, as_attachment=True, download_name='users.xlsx')
 
 
 @app.route('/profile', methods=['GET', 'POST'])
