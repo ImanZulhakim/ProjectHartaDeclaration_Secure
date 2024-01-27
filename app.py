@@ -547,6 +547,26 @@ def export_users():
         return send_file(tmp.name, as_attachment=True, download_name='users.xlsx')
 
 
+@app.route('/export_harta')
+def export_harta():
+    cur = connection.cursor()
+    cur.execute("SELECT bil, tahun, failNo, namaPasangan, jenis, kategori, file_data, filename,email,is_active FROM harta")
+    data = cur.fetchall()
+    cur.close()
+
+    # Convert to DataFrame
+    df = pd.DataFrame(data, columns=['Bil', 'Tahun', 'Nombor Fail', 'Nama Pasangan', 'Jenis Perisytiharan Harta',
+                  'Kategori Perisytiharan Harta', 'Fail Sokongan', 'Additional_Column1',
+                  'Additional_Column2', 'Active'])  # include all relevant columns
+
+    # Create a temporary file and save the Excel file
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
+        df.to_excel(tmp.name, index=False)
+
+        # Send the Excel file as attachment
+        return send_file(tmp.name, as_attachment=True, download_name='harta.xlsx')
+
+
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
     try:
