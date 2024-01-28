@@ -151,10 +151,12 @@
                             <div class="form-group">
                                 <label>Nombor IC:</label>
                                 <label>
-                                    <input type="text" class="form-control" name="name"
+                                    <input type="text" class="form-control" name="nric"
                                            value="{{ row[4] }}">
                                 </label>
                             </div>
+<!-- Add a hidden input for the 'bil' parameter -->
+                <input type="hidden" name="bil" value="{{ row[0] }}">
 
                             <div class="form-group">
                                 <button class="btn btn-primary" type="submit">Update</button>

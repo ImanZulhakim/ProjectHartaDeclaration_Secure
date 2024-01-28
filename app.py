@@ -20,7 +20,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'Hanum2002@',
+    'password': 'Shazlyn287969@',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -451,29 +451,37 @@ def insert_user():
 
 @app.route('/update_user', methods=['POST'])
 def update_user():
-        if request.method == 'POST':
-            try:
-                bil = request.form['bil']
-                email = request.form['email']
-                password = request.form['password']
-                name = request.form['name']
-                nric = request.form['nric']
+    if request.method == 'POST':
+        try:
+            bil = request.form['bil']
+            email = request.form['email']
+            password = request.form['password']
+            name = request.form['name']
+            nric = request.form['nric']
 
-                # Update the user's data in the database and set last modification details
-                cur = connection.cursor()
-                cur.execute(
-                    "UPDATE user SET email=%s, password=%s, name=%s, nric=%s, "
-                    "last_modified_by=%s, last_modified_at=NOW() WHERE bil=%s",
-                    (email, password, name, nric, email, bil))
+            # Get the email of the user who is making the update
+            updater_email = session['email']
 
-                flash("Maklumat Pengguna Berjaya DiKemas Kini!")
-                connection.commit()
-                return redirect(url_for('user'))
-            except Exception as e:
-                logging.exception("An error occurred while updating 'user'.")
-                logging.error("Error details: %s", str(e))
-                flash("Maklumat Pengguna Gagal Dikemas Kini! An error occurred.")
-                return redirect(url_for('user'))
+            # Check if the user is an admin
+            if 'admin' in session and session['admin']:
+                # Admin is updating the user, use admin's email as the last modifier
+                updater_email = 'admin'
+
+            # Update the user's data in the database and set last modification details
+            cur = connection.cursor()
+            cur.execute(
+                "UPDATE user SET email=%s, password=%s, name=%s, nric=%s, "
+                "last_modified_by=%s, last_modified_at=NOW() WHERE bil=%s",
+                (email, password, name, nric, updater_email, bil))
+
+            flash("Maklumat Pengguna Berjaya DiKemas Kini!")
+            connection.commit()
+            return redirect(url_for('user'))
+        except Exception as e:
+            logging.exception("An error occurred while updating 'user'.")
+            logging.error("Error details: %s", str(e))
+            flash("Maklumat Pengguna Gagal Dikemas Kini! An error occurred.")
+            return redirect(url_for('user'))
 
 @app.route('/delete_user/<int:bil>', methods=['POST'])
 def delete_user(bil):
