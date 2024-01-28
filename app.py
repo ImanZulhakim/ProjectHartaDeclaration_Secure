@@ -20,7 +20,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'Shazlyn287969@',
+    'password': 'Hanum2002@',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -561,6 +561,7 @@ def export_harta():
         logging.error("Error details: %s", str(e))
         flash("An error occurred during harta export.")
         return redirect(url_for('harta'))
+
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
