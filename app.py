@@ -19,7 +19,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'Shazlyn287969@',
+    'password': 'root',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -75,46 +75,6 @@ def login():
             flash('Login failed')
 
     return render_template('login.html')
-
-
-# @app.route('/signup', methods=['GET', 'POST'])
-# def signup():
-#     if request.method == 'POST':
-#         if request.method == 'POST':
-#             # Validate reCAPTCHA
-#             recaptcha_response = request.form.get('g-recaptcha-response')
-#             if not validate_recaptcha(recaptcha_response):
-#                 flash('reCAPTCHA verification failed. Please try again.')
-#                 return redirect(url_for('signup'))
-#         name = request.form['name']
-#         nric = request.form['nric']
-#         email = request.form['email']
-#         password = request.form['psw']
-#         repeat_password = request.form['psw-repeat']
-#
-#         # Simple validation
-#         if password != repeat_password:
-#             flash('Passwords do not match')
-#             return redirect(url_for('signup'))
-#
-#         # Insert into database
-#         try:
-#             cur = connection.cursor()
-#             # Insert user data into the database
-#             cur.execute("INSERT INTO user (name, nric, email, password) VALUES (%s, %s, %s, %s)",
-#                         (name, nric, email, password))
-#             connection.commit()
-#             cur.close()
-#
-#             flash('Account successfully created')
-#             return redirect(url_for('login'))
-#         except Exception as e:
-#             logging.exception("Error during signup")
-#             flash('Signup failed')
-#             return redirect(url_for('signup'))
-#
-#     # This part is necessary to handle GET requests and POST requests that do not satisfy conditions
-#     return render_template('signup.html')
 
 
 def validate_recaptcha(response):
@@ -221,7 +181,7 @@ def harta():
         return redirect(url_for('harta'))
 
 
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif', 'txt'}  # Add allowed file extensions
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif', 'txt', 'xslx'}  # Add allowed file extensions
 
 
 @app.route('/download_harta/<int:bil>')
