@@ -20,7 +20,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'root',
+    'password': 'Hanum2002@',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -143,8 +143,7 @@ def harta():
                 "SELECT harta.*, user.name FROM harta JOIN user ON harta.email = user.email")
             hartaData = cur.fetchall()
 
-            cur.execute(
-                "SELECT * FROM user")
+            cur.execute("SELECT * FROM user WHERE is_active = TRUE")
             userData = cur.fetchall()
 
             cur.close()

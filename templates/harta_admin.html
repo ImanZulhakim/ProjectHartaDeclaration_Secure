@@ -97,10 +97,10 @@
                         <div class="form-group">
                             <label for="selectEmail">Pilih Email Pengguna:</label>
                             <select id="selectEmail" name="email">
-                                {% for row in user %}
-                                    <option value="{{ row[1] }}">{{ row[1] }}</option>
-                                {% endfor %}
-                            </select>
+    {% for row in user %}
+        <option value="{{ row[1] }}">{{ row[1] }}</option>
+    {% endfor %}
+</select>
                         </div>
                         <div class="form-group">
                             <label for="selectEmail">Nama Pengguna:</label>
