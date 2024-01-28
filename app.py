@@ -20,7 +20,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'Shazlyn287969@',
+    'password': 'root',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'

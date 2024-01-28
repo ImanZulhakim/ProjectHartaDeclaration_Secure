@@ -42,9 +42,10 @@
                                     <td>{{ row[7] }}</td>
                                     <td>{{ row[-2] }}</td> <!-- Display last modified by -->
                                     <td>{{ row[-1] }}</td>
-                                    <td><a href="{{ url_for('download_harta', bil=row[0]) }}"
+                                    <td>
+                                        <a href="{{ url_for('download_harta', bil=row[0]) }}"
                                            class="btn btn-success btn-xs" download>Muat turun
-                                    </a>
+                                        </a>
                                         <a href="/update_harta/{{ row[0] }}"
                                            class="btn btn-warning btn-xs"
                                            data-toggle="modal" data-target="#modaledit{{ row[0] }}">Edit

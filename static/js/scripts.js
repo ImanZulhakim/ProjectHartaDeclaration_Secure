@@ -15,21 +15,11 @@ function menuBtnChange() {
 }
 
 
-// // Add an event listener to the button
-// button.addEventListener("click", function () {
-//     // Toggle the 'open' class on the sidebar
-//     sidebar.classList.toggle("open");
-//
-//     // Log the current class list of the sidebar
-//     console.log(sidebar.classList);
-// });
-
-
 // Function to show the SweetAlert confirmation dialog for deleting a harta
 function deleteHarta(bil) {
     Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+        title: 'Adakah anda pasti?',
+        text: "Anda tidak akan dapat mengembalikan info harta pengguna!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -38,7 +28,7 @@ function deleteHarta(bil) {
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire(
-                'Deleted!',
+                'Dipadam!',
                 'Harta Berjaya Dipadam!',
                 'success'
             ).then(() => {
@@ -56,8 +46,8 @@ function deleteHarta(bil) {
 
 function deleteUser(bil) {
     Swal.fire({
-        title: 'Are you sure?',
-        text: "You won't be able to revert this!",
+        title: 'Adakah anda pasti?',
+        text: "Anda tidak akan dapat mengembalikan info penguuna!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -66,7 +56,7 @@ function deleteUser(bil) {
     }).then((result) => {
         if (result.isConfirmed) {
             Swal.fire(
-                'Deleted!',
+                'Dipadam!',
                 'Pengguna Berjaya Dipadam!',
                 'success'
             ).then(() => {
