@@ -8,7 +8,8 @@ from datetime import timedelta
 from flask import send_file
 import pandas as pd
 import tempfile
-import os
+import io
+
 app = Flask(__name__)
 app.secret_key = "flash_message"
 
@@ -19,7 +20,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'Hanum2002@',
+    'password': 'Shazlyn287969@',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -75,46 +76,6 @@ def login():
             flash('Login failed')
 
     return render_template('login.html')
-
-
-# @app.route('/signup', methods=['GET', 'POST'])
-# def signup():
-#     if request.method == 'POST':
-#         if request.method == 'POST':
-#             # Validate reCAPTCHA
-#             recaptcha_response = request.form.get('g-recaptcha-response')
-#             if not validate_recaptcha(recaptcha_response):
-#                 flash('reCAPTCHA verification failed. Please try again.')
-#                 return redirect(url_for('signup'))
-#         name = request.form['name']
-#         nric = request.form['nric']
-#         email = request.form['email']
-#         password = request.form['psw']
-#         repeat_password = request.form['psw-repeat']
-#
-#         # Simple validation
-#         if password != repeat_password:
-#             flash('Passwords do not match')
-#             return redirect(url_for('signup'))
-#
-#         # Insert into database
-#         try:
-#             cur = connection.cursor()
-#             # Insert user data into the database
-#             cur.execute("INSERT INTO user (name, nric, email, password) VALUES (%s, %s, %s, %s)",
-#                         (name, nric, email, password))
-#             connection.commit()
-#             cur.close()
-#
-#             flash('Account successfully created')
-#             return redirect(url_for('login'))
-#         except Exception as e:
-#             logging.exception("Error during signup")
-#             flash('Signup failed')
-#             return redirect(url_for('signup'))
-#
-#     # This part is necessary to handle GET requests and POST requests that do not satisfy conditions
-#     return render_template('signup.html')
 
 
 def validate_recaptcha(response):
@@ -221,7 +182,7 @@ def harta():
         return redirect(url_for('harta'))
 
 
-ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif', 'txt'}  # Add allowed file extensions
+ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif', 'txt', 'xslx'}  # Add allowed file extensions
 
 
 @app.route('/download_harta/<int:bil>')
@@ -310,9 +271,9 @@ def insert_harta():
                 # Insert harta into the database
                 cur = connection.cursor()
                 cur.execute(
-                    "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email) VALUES "
-                    "(%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email))
+                    "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, last_modified_by, last_modified_at) VALUES "
+                    "(%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())",
+                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, email))
                 connection.commit()
 
                 flash("Harta Berjaya Diisytihar!")
@@ -349,9 +310,9 @@ def insert_harta():
                 # Insert harta into the database
                 cur = connection.cursor()
                 cur.execute(
-                    "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email) VALUES "
-                    "(%s, %s, %s, %s, %s, %s, %s, %s)",
-                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email))
+                    "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, last_modified_by, last_modified_at) VALUES "
+                    "(%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())",
+                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, email))
                 connection.commit()
 
                 flash("Harta Berjaya Diisytihar!")
@@ -393,11 +354,15 @@ def update_harta():
             jenis = request.form['jenis']
             kategori = request.form['kategori']
 
-            # cur = mysql.cursor()
+            # Get the email of the user who is making the update
+            email = session['email']
+
+            # Update the harta entry and set last modification details
             cur = connection.cursor()
             cur.execute(
-                "UPDATE harta SET tahun=%s, failNo=%s, namaPasangan=%s, jenis=%s, kategori=%s WHERE bil=%s",
-                (tahun, failNo, namaPasangan, jenis, kategori, bil))
+                "UPDATE harta SET tahun=%s, failNo=%s, namaPasangan=%s, jenis=%s, kategori=%s, "
+                "last_modified_by=%s, last_modified_at=NOW() WHERE bil=%s",
+                (tahun, failNo, namaPasangan, jenis, kategori, email, bil))
             flash("Harta Berjaya Dikemas Kini!")
             connection.commit()
             return redirect(url_for('harta'))
@@ -406,7 +371,6 @@ def update_harta():
             logging.error("Error details: %s", str(e))
             flash("Harta Gagal Dikemas Kini! An error occurred.")
             return redirect(url_for('harta'))
-
 
 @app.route('/delete_harta/<int:bil>', methods=['POST'])
 def delete_harta(bil):
@@ -451,7 +415,7 @@ def user():
             cur.close()
             name = session.get('name', 'User')
 
-            return render_template('user.html', harta=data, name=name)
+            return render_template('user.html', user=data, name=name)
 
     except Exception as e:
         logging.exception("Error fetching harta data:")
@@ -467,19 +431,19 @@ def insert_user():
         name = request.form['name']
         nric = request.form['nric']
 
-        # Insert harta into the database
+        # Insert user into the database
         cur = connection.cursor()
         cur.execute(
-            "INSERT INTO user (email, password, name, nric) VALUES "
-            "(%s, %s, %s, %s)",
-            (email, password, name, nric))
+            "INSERT INTO user (email, password, name, nric, last_modified_by, last_modified_at) VALUES "
+            "(%s, %s, %s, %s, %s, NOW())",
+            (email, password, name, nric, email))
         connection.commit()
 
         flash("Pengguna Berjaya DItambah!")
         return redirect(url_for('user'))
 
     except Exception as e:
-        logging.exception("An error occurred while processing the file upload for 'harta'.")
+        logging.exception("An error occurred while processing the file upload for 'user'.")
         logging.error("Error details: %s", str(e))
         flash("Pengguna gagal ditambah!")
         return redirect(url_for('user'))
@@ -487,30 +451,29 @@ def insert_user():
 
 @app.route('/update_user', methods=['POST'])
 def update_user():
-    if request.method == 'POST':
-        try:
-            bil = request.form['bil']
-            email = request.form['email']
-            password = request.form['password']
-            name = request.form['name']
-            nric = request.form['nric']
+        if request.method == 'POST':
+            try:
+                bil = request.form['bil']
+                email = request.form['email']
+                password = request.form['password']
+                name = request.form['name']
+                nric = request.form['nric']
 
-            cur = connection.cursor()
-            cur.execute(
-                "UPDATE user SET email=%s, password=%s, name=%s, nric=%s"
-                "WHERE "
-                "bil=%s",
-                (password, name, nric, email, bil))
+                # Update the user's data in the database and set last modification details
+                cur = connection.cursor()
+                cur.execute(
+                    "UPDATE user SET email=%s, password=%s, name=%s, nric=%s, "
+                    "last_modified_by=%s, last_modified_at=NOW() WHERE bil=%s",
+                    (email, password, name, nric, email, bil))
 
-            flash("Maklumat Pengguna Berjaya DiKemas Kini!")
-            connection.commit()
-            return redirect(url_for('user'))
-        except Exception as e:
-            logging.exception("An error occurred while updating 'user'.")
-            logging.error("Error details: %s", str(e))
-            flash("Maklumat Pengguna Gagal Dikemas Kini! An error occurred.")
-            return redirect(url_for('user'))
-
+                flash("Maklumat Pengguna Berjaya DiKemas Kini!")
+                connection.commit()
+                return redirect(url_for('user'))
+            except Exception as e:
+                logging.exception("An error occurred while updating 'user'.")
+                logging.error("Error details: %s", str(e))
+                flash("Maklumat Pengguna Gagal Dikemas Kini! An error occurred.")
+                return redirect(url_for('user'))
 
 @app.route('/delete_user/<int:bil>', methods=['POST'])
 def delete_user(bil):
@@ -544,42 +507,60 @@ def delete_user(bil):
 
 @app.route('/export_users')
 def export_users():
-    # Query all user data from the database, including the is_active status
-    cur = connection.cursor()
-    cur.execute("SELECT bil, email, password, name, nric, is_active FROM user")
-    users = cur.fetchall()
-    cur.close()
+    try:
+        # Query all user data from the database, including the is_active status
+        cur = connection.cursor()
+        cur.execute("SELECT bil, email, password, name, nric, is_active, last_modified_by, last_modified_at FROM user")
+        users = cur.fetchall()
+        cur.close()
 
-    # Convert to DataFrame for easier Excel export
-    df = pd.DataFrame(users, columns=['Bil', 'Email', 'Password', 'Nama Pengguna', 'Nombor IC', 'IsActive'])
+        # Convert to DataFrame for easier Excel export
+        df = pd.DataFrame(users, columns=['Bil', 'Email', 'Password', 'Nama Pengguna', 'Nombor IC', 'IsActive', 'Modifikasi terakhir oleh', 'Modifikasi terakhir pada'])
 
-    # Create a temporary directory and save the Excel file there
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
-        df.to_excel(tmp.name, index=False)
+        # Create a temporary directory and save the Excel file there
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
+            df.to_excel(tmp.name, index=False)
+            return send_file(tmp.name, as_attachment=True, download_name='users.xlsx')
 
-        # Send the Excel file as attachment
-        return send_file(tmp.name, as_attachment=True, download_name='users.xlsx')
+    except Exception as e:
+        logging.exception("An error occurred during user export:")
+        flash(f"An error occurred during user export: {str(e)}")
+        return redirect(url_for('user'))
+
 
 
 @app.route('/export_harta')
 def export_harta():
-    cur = connection.cursor()
-    cur.execute("SELECT bil, tahun, failNo, namaPasangan, jenis, kategori, file_data, filename,email,is_active FROM harta")
-    data = cur.fetchall()
-    cur.close()
+    try:
+        cur = connection.cursor()
+        query = "SELECT bil, tahun, failNo, namaPasangan, jenis, kategori, filename, email, is_active ,last_modified_by, last_modified_at FROM harta"
+        cur.execute(query)
+        data = cur.fetchall()
+        cur.close()
 
-    # Convert to DataFrame
-    df = pd.DataFrame(data, columns=['Bil', 'Tahun', 'Nombor Fail', 'Nama Pasangan', 'Jenis Perisytiharan Harta',
-                  'Kategori Perisytiharan Harta', 'Fail Sokongan', 'Additional_Column1',
-                  'Additional_Column2', 'Active'])  # include all relevant columns
+        # Convert to DataFrame
+        df = pd.DataFrame(data, columns=['Bil', 'Tahun', 'Nombor Fail', 'Nama Pasangan', 'Jenis Perisytiharan Harta',
+                                         'Kategori Perisytiharan Harta', 'Fail Sokongan', 'Email', 'Aktif',
+                                         'Last Modified By', 'Last Modified At'])
 
-    # Create a temporary file and save the Excel file
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
-        df.to_excel(tmp.name, index=False)
+        # Create an in-memory Excel file
+        excel_data = io.BytesIO()
+        df.to_excel(excel_data, index=False)
+        excel_data.seek(0)
 
-        # Send the Excel file as attachment
-        return send_file(tmp.name, as_attachment=True, download_name='harta.xlsx')
+        # Send the Excel file as an attachment
+        return send_file(
+            excel_data,
+            as_attachment=True,
+            download_name='harta.xlsx',
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
 
+    except Exception as e:
+        logging.exception("An error occurred during harta export:")
+        logging.error("Error details: %s", str(e))
+        flash("An error occurred during harta export.")
+        return redirect(url_for('harta'))
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
@@ -611,6 +592,12 @@ def profile():
         flash("An error occurred while fetching harta data.")
         return redirect(url_for('login'))
 
+@app.route('/simulate_unauthorized_access')
+def simulate_unauthorized_access():
+    # Simulate an unauthorized access attempt
+    unauthorized_user_email = 'test@example.com'
+    logging.warning(f"Unauthorized user manipulation attempt by {unauthorized_user_email}")
+    return "Simulated Unauthorized Access"
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000, debug=False)

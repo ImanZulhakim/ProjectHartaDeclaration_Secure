@@ -13,7 +13,7 @@
 
     <link rel="stylesheet"
           href="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.css">
- <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
     <link href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}" rel="stylesheet">
 
@@ -24,29 +24,16 @@
             </div>
             <div class="container">
                 <div class="row">
-                    <div class="well col-md-12">
-                                          <h2>Senarai Pengguna
-<a href="{{ url_for('export_harta') }}" class="btn btn-info pull-right" title="">
-    <i class="fa fa-file-excel-o"></i>
-</a>
+                    <div class="well">
+                        <h2>Senarai Pengguna
+                            <a href="{{ url_for('export_harta') }}" class="btn btn-info pull-right" title="">
+                                <i class="fa fa-file-excel-o"></i>
+                            </a>
 
-    <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#myModal">Tambah
-    </button>
-</h2>
+                            <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#myModal">Tambah
+                            </button>
                         </h2>
 
-                        {#                        {% with messages = get_flashed_messages() %}#}
-                        {#                            {% if messages %}#}
-                        {#                                {% for message in messages %}#}
-                        {#                                    <div class="alert alert-success" role="alert">#}
-                        {#                                        <button type="button" class="close" data-dismiss="alert" aria-label="close">#}
-                        {#                                            <span aria-hidden="true">x</span>#}
-                        {#                                        </button>#}
-                        {#                                        {{ message }}#}
-                        {#                                    </div>#}
-                        {#                                {% endfor %}#}
-                        {#                            {% endif %}#}
-                        {#                        {% endwith %}#}
 
                         <table class="table table-striped">
                             <tr>
@@ -58,26 +45,30 @@
                                 <th>Jenis Perisytiharan Harta</th>
                                 <th>Kategori Perisytiharan Harta</th>
                                 <th>Fail Sokongan</th>
+                                <th>Modifikasi Terakhir Oleh</th>
+                                <th>Modifikasi Terakhir Pada</th>
+                                <th></th>
                             </tr>
                             {% for row in harta %}
                                 <tr>
                                     <td>{{ row[0] }}</td>
-                                    <td>{{ row[-1] }}</td> <!-- Displaying User Name -->
+                                    <td>{{ row[-1] }}</td> <!-- Displaying Username -->
                                     <td>{{ row[1] }}</td>
                                     <td>{{ row[2] }}</td>
                                     <td>{{ row[3] }}</td>
                                     <td>{{ row[4] }}</td>
                                     <td>{{ row[5] }}</td>
                                     <td>{{ row[7] }}</td>
-                                    <td><a href="{{ url_for('download_harta', bil=row[0]) }}"
-                                           class="btn btn-success btn-xs" download>Muat turun</a>
-                                    </td>
+                                    <td>{{ row[-3] }}</td> <!-- Display last modified by -->
+                                    <td>{{ row[-2] }}</td>
                                     <td>
-                                        <a href="/update_harta/{{ row[0] }}"
-                                           class="btn btn-warning btn-xs"
-                                           data-toggle="modal" data-target="#modaledit{{ row[0] }}">Edit</a>
-                                        <button class="btn btn-danger btn-xs"
-                                                onclick="deleteHarta({{ row[0] }})">
+                                        <a href="{{ url_for('download_harta', bil=row[0]) }}"
+                                           class="btn btn-success btn-xs" download>Muat turun
+                                        </a>
+                                        <a href="/update_harta/{{ row[0] }}" class="btn btn-warning btn-xs"
+                                           data-toggle="modal" data-target="#modaledit{{ row[0] }}">Edit
+                                        </a>
+                                        <button class="btn btn-danger btn-xs" onclick="deleteHarta({{ row[0] }})">
                                             Padam
                                         </button>
                                     </td>

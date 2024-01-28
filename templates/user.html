@@ -11,11 +11,7 @@
         }
     </style>
 
-    <link rel="stylesheet"
-          href="https://cdn.jsdelivr.net/npm/sweetalert2@10.15.5/dist/sweetalert2.min.css">
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet">
 
-    <link href="{{ url_for('static', filename = 'css/bootstrap.min.css') }}" rel="stylesheet">
 
     <section class="home-section">
         <div class="container">
@@ -26,13 +22,13 @@
                 <div class="row">
                     <div class="well col-md-12">
                         <h2>Senarai Pengguna
-<a href="{{ url_for('export_users') }}" class="btn btn-info pull-right" title="Export to Excel">
-    <i class="fa fa-file-excel-o"></i> Export
-</a>
+                            <a href="{{ url_for('export_users') }}" class="btn btn-info pull-right" title="Export to Excel">
+                                <i class="fa fa-file-excel-o"></i> Export
+                            </a>
 
-    <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#myModal">Tambah
-    </button>
-</h2>
+                            <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#myModal">Tambah
+                            </button>
+                        </h2>
                         <table class="table table-striped">
                             <tr>
                                 <th>Bil</th>
@@ -40,20 +36,26 @@
                                 <th>Password</th>
                                 <th>Nama Pengguna</th>
                                 <th>Nombor IC</th>
+                                <th>Modifikasi oleh</th>
+                                <th>Modifikasi Pada</th>
                             </tr>
-                            {% for row in harta %}
+                            {% for row in user %}
                                 <tr>
                                     <td>{{ row[0] }}</td>
                                     <td>{{ row[1] }}</td>
                                     <td>{{ row[2] }}</td>
+
                                     <td style="width: 200px;">{{ row[3] }}</td>
                                     <td style="width: 200px;">{{ row[4] }}</td>
+                                    <td>{{ row[-2] }}</td>
+                                    <td>{{ row[-1] }}</td>
+
+
                                     <td>
-                                        <a href="/update_user/{{ row[0] }}" class="btn btn-warning
-                                        btn-xs"
-                                           data-toggle="modal" data-target="#modaledit{{ row[0] }}">Edit</a>
-                                        <button class="btn btn-danger btn-xs" onclick="deleteUser
-                                                ({{ row[0] }})">
+                                        <a href="/update_user/{{ row[0] }}" class="btn btn-warning btn-xs"
+                                           data-toggle="modal" data-target="#modaledit{{ row[0] }}">Edit
+                                        </a>
+                                        <button class="btn btn-danger btn-xs" onclick="deleteUser({{ row[0] }})">
                                             Padam
                                         </button>
                                     </td>
