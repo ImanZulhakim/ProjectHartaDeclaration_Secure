@@ -29,6 +29,7 @@
                                 <th>Fail Sokongan</th>
                                 <th>Modifikasi Terakhir Oleh</th>
                                 <th>Modifikasi Terakhir Pada</th>
+                                <th></th>
                             </tr>
                             {% for row in harta %}
                                 <tr>
@@ -42,12 +43,12 @@
                                     <td>{{ row[-2] }}</td> <!-- Display last modified by -->
                                     <td>{{ row[-1] }}</td>
                                     <td><a href="{{ url_for('download_harta', bil=row[0]) }}"
-                                           class="btn btn-success btn-xs" download>Muat turun</a>
-                                    </td>
-                                    <td>
+                                           class="btn btn-success btn-xs" download>Muat turun
+                                    </a>
                                         <a href="/update_harta/{{ row[0] }}"
                                            class="btn btn-warning btn-xs"
-                                           data-toggle="modal" data-target="#modaledit{{ row[0] }}">Edit</a>
+                                           data-toggle="modal" data-target="#modaledit{{ row[0] }}">Edit
+                                        </a>
                                     </td>
                                 </tr>
                             {% endfor %}

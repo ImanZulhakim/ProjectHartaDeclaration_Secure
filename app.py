@@ -414,7 +414,7 @@ def user():
             cur.close()
             name = session.get('name', 'User')
 
-            return render_template('user.html', harta=data, name=name)
+            return render_template('user.html', user=data, name=name)
 
     except Exception as e:
         logging.exception("Error fetching harta data:")
