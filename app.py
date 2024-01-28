@@ -8,7 +8,8 @@ from datetime import timedelta
 from flask import send_file
 import pandas as pd
 import tempfile
-import os
+import io
+
 app = Flask(__name__)
 app.secret_key = "flash_message"
 
@@ -19,7 +20,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'root',
+    'password': 'Shazlyn287969@',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -506,42 +507,60 @@ def delete_user(bil):
 
 @app.route('/export_users')
 def export_users():
-    # Query all user data from the database, including the is_active status
-    cur = connection.cursor()
-    cur.execute("SELECT bil, email, password, name, nric, is_active FROM user")
-    users = cur.fetchall()
-    cur.close()
+    try:
+        # Query all user data from the database, including the is_active status
+        cur = connection.cursor()
+        cur.execute("SELECT bil, email, password, name, nric, is_active, last_modified_by, last_modified_at FROM user")
+        users = cur.fetchall()
+        cur.close()
 
-    # Convert to DataFrame for easier Excel export
-    df = pd.DataFrame(users, columns=['Bil', 'Email', 'Password', 'Nama Pengguna', 'Nombor IC', 'IsActive'])
+        # Convert to DataFrame for easier Excel export
+        df = pd.DataFrame(users, columns=['Bil', 'Email', 'Password', 'Nama Pengguna', 'Nombor IC', 'IsActive', 'Modifikasi terakhir oleh', 'Modifikasi terakhir pada'])
 
-    # Create a temporary directory and save the Excel file there
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
-        df.to_excel(tmp.name, index=False)
+        # Create a temporary directory and save the Excel file there
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
+            df.to_excel(tmp.name, index=False)
+            return send_file(tmp.name, as_attachment=True, download_name='users.xlsx')
 
-        # Send the Excel file as attachment
-        return send_file(tmp.name, as_attachment=True, download_name='users.xlsx')
+    except Exception as e:
+        logging.exception("An error occurred during user export:")
+        flash(f"An error occurred during user export: {str(e)}")
+        return redirect(url_for('user'))
+
 
 
 @app.route('/export_harta')
 def export_harta():
-    cur = connection.cursor()
-    cur.execute("SELECT bil, tahun, failNo, namaPasangan, jenis, kategori, file_data, filename,email,is_active FROM harta")
-    data = cur.fetchall()
-    cur.close()
+    try:
+        cur = connection.cursor()
+        query = "SELECT bil, tahun, failNo, namaPasangan, jenis, kategori, filename, email, is_active ,last_modified_by, last_modified_at FROM harta"
+        cur.execute(query)
+        data = cur.fetchall()
+        cur.close()
 
-    # Convert to DataFrame
-    df = pd.DataFrame(data, columns=['Bil', 'Tahun', 'Nombor Fail', 'Nama Pasangan', 'Jenis Perisytiharan Harta',
-                  'Kategori Perisytiharan Harta', 'Fail Sokongan', 'Additional_Column1',
-                  'Additional_Column2', 'Active'])  # include all relevant columns
+        # Convert to DataFrame
+        df = pd.DataFrame(data, columns=['Bil', 'Tahun', 'Nombor Fail', 'Nama Pasangan', 'Jenis Perisytiharan Harta',
+                                         'Kategori Perisytiharan Harta', 'Fail Sokongan', 'Email', 'Aktif',
+                                         'Last Modified By', 'Last Modified At'])
 
-    # Create a temporary file and save the Excel file
-    with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
-        df.to_excel(tmp.name, index=False)
+        # Create an in-memory Excel file
+        excel_data = io.BytesIO()
+        df.to_excel(excel_data, index=False)
+        excel_data.seek(0)
 
-        # Send the Excel file as attachment
-        return send_file(tmp.name, as_attachment=True, download_name='harta.xlsx')
+        # Send the Excel file as an attachment
+        return send_file(
+            excel_data,
+            as_attachment=True,
+            download_name='harta.xlsx',
+            mimetype='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+        )
 
+    except Exception as e:
+        logging.exception("An error occurred during harta export:")
+        logging.error("Error details: %s", str(e))
+        flash("An error occurred during harta export.")
+        return redirect(url_for('harta'))
 
 @app.route('/profile', methods=['GET', 'POST'])
 def profile():
