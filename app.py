@@ -35,47 +35,44 @@ logging.basicConfig(level=logging.DEBUG)
 @app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Validate reCAPTCHA
         recaptcha_response = request.form.get('g-recaptcha-response')
         if not validate_recaptcha(recaptcha_response):
             flash('reCAPTCHA verification failed. Please try again.')
             return redirect(url_for('login'))
+
         email = request.form['email']
         password = request.form['password']
 
-        # Logging the username and password for debugging
         logging.debug(f"Email: {email}, Password: {password}")
 
         if email == 'admin' and password == 'admin':
-            # Admin login
-            # Inside the login route, after successful authentication
             session['name'] = ['name']
             session['admin'] = True
             session['email'] = 'admin'
             flash('Admin login successful')
             return redirect(url_for('main'))
 
-        # Check if the user exists in the database and validate credentials
         try:
             cur = connection.cursor()
-            cur.execute("SELECT * FROM user WHERE email = %s AND password = %s",
+            cur.execute("SELECT * FROM user WHERE email = %s AND password = %s AND is_active = TRUE",
                         (email, password))
             curUser = cur.fetchone()
             cur.close()
 
-            if user:
-                # User login
+            if curUser:
                 session['email'] = curUser[1]  # Assuming email is at index 1 in the user tuple
                 flash('User login successful')
                 return redirect(url_for('main'))
             else:
-                flash('Invalid credentials')
+                flash('Invalid credentials or inactive account')
 
         except Exception as e:
             logging.exception("Error during login")
             flash('Login failed')
 
+    # Ensure a response is returned for all execution paths
     return render_template('login.html')
+
 
 
 def validate_recaptcha(response):
