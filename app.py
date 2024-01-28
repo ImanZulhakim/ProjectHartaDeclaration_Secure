@@ -1,5 +1,4 @@
-from flask import Flask, render_template, request, session, flash, redirect, url_for, \
-    make_response
+from flask import Flask, render_template, request, session, flash, redirect, url_for, make_response
 import logging
 import pymysql
 import requests
@@ -15,12 +14,16 @@ app.secret_key = "flash_message"
 
 # Configure session timeout
 app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30)
+
+# Preventing cookie theft and XSS attacks.
+app.config['SESSION_COOKIE_SECURE'] = True
+app.config['SESSION_COOKIE_HTTPONLY'] = True
 # Set session timeout to 5 minutes
 
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'Hanum2002@',
+    'password': 'root',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -72,7 +75,6 @@ def login():
 
     # Ensure a response is returned for all execution paths
     return render_template('login.html')
-
 
 
 def validate_recaptcha(response):
@@ -150,7 +152,7 @@ def harta():
             kategori_options = ["Sendiri", "Bersama"]
             name = session.get('name', 'User')
 
-            return render_template('harta_admin.html', harta=hartaData, user=userData, name=name,
+            return render_template('harta_admin.html', harta=hartaData, user=userData, username=name,
                                    jenis_options=jenis_options,
                                    kategori_options=kategori_options)
 
@@ -184,11 +186,6 @@ ALLOWED_EXTENSIONS = {'pdf', 'png', 'jpg', 'jpeg', 'gif', 'txt', 'xslx'}  # Add 
 @app.route('/download_harta/<int:bil>')
 def download_harta(bil):
     try:
-        # Fetch jenis options from the database (replace this with your actual query)
-        jenis_options = ["Tanah", "Kereta", "Motosikal"]
-
-        # Fetch kategori options from the database (replace this with your actual query)
-        kategori_options = ["Sendiri", "Bersama"]
 
         cur = connection.cursor()
         cur.execute("SELECT file_data, filename FROM harta WHERE bil = %s", (bil,))
@@ -234,90 +231,53 @@ def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
-
 @app.route('/insert_harta', methods=['POST'])
 def insert_harta():
     try:
-        # Check if the current user is an admin
-        email = session['email']
+        email = session.get('email')
+
         if email == 'admin':
-            email = request.form['email']
-            tahun = request.form['tahun']
-            failNo = request.form['failNo']
-            namaPasangan = request.form['namaPasangan']
-            jenis = request.form['jenis']
-            kategori = request.form['kategori']
+            # Admin-specific logic here
+            pass
+        else:
+            # User-specific logic here
+            pass
 
-            # Check if the post-request has the file part
-            if 'file' not in request.files:
-                flash('No file part')
-                return redirect(request.url)
+        # Common logic for both admin and user
+        tahun = request.form['tahun']
+        failNo = request.form['failNo']
+        namaPasangan = request.form['namaPasangan']
+        jenis = request.form['jenis']
+        kategori = request.form['kategori']
 
-            file = request.files['file']
+        if 'file' not in request.files:
+            flash('No file part')
+            return redirect(request.url)
 
-            # If a user does not select file, the browser also submits an empty part without filename
-            if file.filename == '':
-                flash('No selected file')
-                return redirect(request.url)
+        file = request.files['file']
 
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_data = file.read()
+        if file.filename == '':
+            flash('No selected file')
+            return redirect(request.url)
 
-                # Insert harta into the database
-                cur = connection.cursor()
+        if file and allowed_file(file.filename):
+            filename = secure_filename(file.filename)
+            file_data = file.read()
+
+            # Use a context manager for the database cursor
+            with connection.cursor() as cur:
                 cur.execute(
                     "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, last_modified_by, last_modified_at) VALUES "
                     "(%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())",
                     (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, email))
                 connection.commit()
 
-                flash("Harta Berjaya Diisytihar!")
-                return redirect(url_for('harta'))
-
-            else:
-                flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif")
-                return redirect(request.url)
+            flash("Harta Berjaya Diisytihar!")
+            return redirect(url_for('harta'))
 
         else:
-            email = session['email']
-            tahun = request.form['tahun']
-            failNo = request.form['failNo']
-            namaPasangan = request.form['namaPasangan']
-            jenis = request.form['jenis']
-            kategori = request.form['kategori']
-
-            # Check if the post-request has the file part
-            if 'file' not in request.files:
-                flash('No file part')
-                return redirect(request.url)
-
-            file = request.files['file']
-
-            # If a user does not select file, the browser also submits an empty part without filename
-            if file.filename == '':
-                flash('No selected file')
-                return redirect(request.url)
-
-            if file and allowed_file(file.filename):
-                filename = secure_filename(file.filename)
-                file_data = file.read()
-
-                # Insert harta into the database
-                cur = connection.cursor()
-                cur.execute(
-                    "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, last_modified_by, last_modified_at) VALUES "
-                    "(%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())",
-                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, email))
-                connection.commit()
-
-                flash("Harta Berjaya Diisytihar!")
-                return redirect(url_for('harta'))
-
-            else:
-                flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif")
-                return redirect(request.url)
-
+            flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif")
+            return redirect(request.url)
 
     except Exception as e:
         logging.exception("An error occurred while processing the file upload for 'harta'.")
@@ -328,6 +288,99 @@ def insert_harta():
         return redirect(url_for('harta'))
 
 
+# @app.route('/insert_harta', methods=['POST'])
+# def insert_harta():
+#     try:
+#         # Check if the current user is an admin
+#         email = session['email']
+#         if email == 'admin':
+#             email = request.form['email']
+#             tahun = request.form['tahun']
+#             failNo = request.form['failNo']
+#             namaPasangan = request.form['namaPasangan']
+#             jenis = request.form['jenis']
+#             kategori = request.form['kategori']
+#
+#             # Check if the post-request has the file part
+#             if 'file' not in request.files:
+#                 flash('No file part')
+#                 return redirect(request.url)
+#
+#             file = request.files['file']
+#
+#             # If a user does not select file, the browser also submits an empty part without filename
+#             if file.filename == '':
+#                 flash('No selected file')
+#                 return redirect(request.url)
+#
+#             if file and allowed_file(file.filename):
+#                 filename = secure_filename(file.filename)
+#                 file_data = file.read()
+#
+#                 # Insert harta into the database
+#                 cur = connection.cursor()
+#                 cur.execute(
+#                     "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, last_modified_by, last_modified_at) VALUES "
+#                     "(%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())",
+#                     (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, email))
+#                 connection.commit()
+#
+#                 flash("Harta Berjaya Diisytihar!")
+#                 return redirect(url_for('harta'))
+#
+#             else:
+#                 flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif")
+#                 return redirect(request.url)
+#
+#         else:
+#             email = session['email']
+#             tahun = request.form['tahun']
+#             failNo = request.form['failNo']
+#             namaPasangan = request.form['namaPasangan']
+#             jenis = request.form['jenis']
+#             kategori = request.form['kategori']
+#
+#             # Check if the post-request has the file part
+#             if 'file' not in request.files:
+#                 flash('No file part')
+#                 return redirect(request.url)
+#
+#             file = request.files['file']
+#
+#             # If a user does not select file, the browser also submits an empty part without filename
+#             if file.filename == '':
+#                 flash('No selected file')
+#                 return redirect(request.url)
+#
+#             if file and allowed_file(file.filename):
+#                 filename = secure_filename(file.filename)
+#                 file_data = file.read()
+#
+#                 # Insert harta into the database
+#                 cur = connection.cursor()
+#                 cur.execute(
+#                     "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, last_modified_by, last_modified_at) VALUES "
+#                     "(%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())",
+#                     (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, email))
+#                 connection.commit()
+#
+#                 flash("Harta Berjaya Diisytihar!")
+#                 return redirect(url_for('harta'))
+#
+#             else:
+#                 flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif")
+#                 return redirect(request.url)
+#
+#
+#     except Exception as e:
+#         logging.exception("An error occurred while processing the file upload for 'harta'.")
+#         logging.error("Error details: %s", str(e))
+#         logging.error("Tahun: %s, Nombor Fail: %s, namaPasangan=%s, Jenis: %s, Kategori: %s", tahun, failNo,
+#                       namaPasangan, jenis, kategori)
+#         flash("Harta Gagal Diisytihar! An error occurred.")
+#         return redirect(url_for('harta'))
+
+
 @app.route('/get_username', methods=['POST'])
 def get_username():
     email = request.form.get('email')
@@ -336,7 +389,6 @@ def get_username():
     data = cur.fetchone()
     cur.close()
     return data[0] if data else ''
-
 
 
 @app.route('/update_harta', methods=['POST'])
@@ -367,6 +419,7 @@ def update_harta():
             logging.error("Error details: %s", str(e))
             flash("Harta Gagal Dikemas Kini! An error occurred.")
             return redirect(url_for('harta'))
+
 
 @app.route('/delete_harta/<int:bil>', methods=['POST'])
 def delete_harta(bil):
@@ -479,6 +532,7 @@ def update_user():
             flash("Maklumat Pengguna Gagal Dikemas Kini! An error occurred.")
             return redirect(url_for('user'))
 
+
 @app.route('/delete_user/<int:bil>', methods=['POST'])
 def delete_user(bil):
     try:
@@ -519,7 +573,8 @@ def export_users():
         cur.close()
 
         # Convert to DataFrame for easier Excel export
-        df = pd.DataFrame(users, columns=['Bil', 'Email', 'Password', 'Nama Pengguna', 'Nombor IC', 'IsActive', 'Modifikasi terakhir oleh', 'Modifikasi terakhir pada'])
+        df = pd.DataFrame(users, columns=['Bil', 'Email', 'Password', 'Nama Pengguna', 'Nombor IC', 'IsActive', 'Modifikasi terakhir oleh',
+                                          'Modifikasi terakhir pada'])
 
         # Create a temporary directory and save the Excel file there
         with tempfile.NamedTemporaryFile(delete=False, suffix='.xlsx') as tmp:
@@ -530,7 +585,6 @@ def export_users():
         logging.exception("An error occurred during user export:")
         flash(f"An error occurred during user export: {str(e)}")
         return redirect(url_for('user'))
-
 
 
 @app.route('/export_harta')
@@ -597,12 +651,14 @@ def profile():
         flash("An error occurred while fetching harta data.")
         return redirect(url_for('login'))
 
+
 @app.route('/simulate_unauthorized_access')
 def simulate_unauthorized_access():
     # Simulate an unauthorized access attempt
     unauthorized_user_email = 'test@example.com'
     logging.warning(f"Unauthorized user manipulation attempt by {unauthorized_user_email}")
     return "Simulated Unauthorized Access"
+
 
 if __name__ == "__main__":
     app.run(host='127.0.0.1', port=5000, debug=False)

@@ -267,3 +267,5 @@ function password_show_hide() {
         hide_eye.style.display = "none";
     }
 }
+
+
