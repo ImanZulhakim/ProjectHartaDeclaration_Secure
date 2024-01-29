@@ -103,9 +103,7 @@
                                 <label class="form-check-label" for="sendiri">Sendiri</label>
                             </div>
                             <div class="form-check">
-                                <input class="form-check-input" type="radio" name="kategori"
-                                       id="bersama" value="Bersama"
-                                       required>
+                                <input class="form-check-input" type="radio" name="kategori" id="bersama" value="Bersama" required>
                                 <label class="form-check-label" for="bersama">Bersama</label>
                             </div>
                         </div>
@@ -115,11 +113,9 @@
                                    onchange="updateViewFileLink()"/>
                         </div>
                         <div class="form-group">
-                            <button class="btn btn-primary" type="button" data-toggle="modal"
-                                    data-target="#draftModal"
-                                    onclick="showDraftData()">
-                                Preview Rekod
-                            </button>
+                            <button class="btn btn-primary" type="button" data-toggle="modal"  onclick="validateAndPreview()">
+                            Preview Rekod
+                        </button>
                         </div>
                     </form>
                 </div>
@@ -144,27 +140,27 @@
                     <div class="modal-body">
                         <form action="{{ url_for('update_harta') }}" method="POST">
                             <div class="form-group">
-                                <input type="hidden" name="bil" value="{{ row[0] }}">
+                                <input type="hidden" name="bil" value="{{ row[0] }}" required>
                             </div>
                             <div class="form-group">
                                 <label>Tahun:</label>
                                 <label>
                                     <input type="text" class="form-control" name="tahun"
-                                           value="{{ row[1] }}">
+                                           value="{{ row[1] }}" required>
                                 </label>
                             </div>
                             <div class="form-group">
                                 <label>No. Fail:</label>
                                 <label>
                                     <input type="text" class="form-control" name="failNo"
-                                           value="{{ row[2] }}">
+                                           value="{{ row[2] }}" required>
                                 </label>
                             </div>
                             <div class="form-group">
                                 <label>Nama Pasangan:</label>
                                 <label>
                                     <input type="text" class="form-control" name="namaPasangan"
-                                           value="{{ row[3] }}">
+                                           value="{{ row[3] }}" required>
                                 </label>
                             </div>
                             <div class="form-group">
@@ -182,8 +178,8 @@
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="kategori"
                                                id="{{ option|lower }}"
-                                               value="{{ option }}" required
-                                               {% if option == row[1] %}checked{% endif %}>
+                                               value="{{ option }}"
+                                               {% if option == row[1] %}checked{% endif %} required>
                                         <label class="form-check-label" for="{{ option|lower }}">
                                             {{ option }}
                                         </label>

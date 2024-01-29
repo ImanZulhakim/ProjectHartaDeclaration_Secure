@@ -68,5 +68,44 @@
 <script src="../static/js/scripts.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.20/dist/sweetalert2.all.min.js"></script>
+
+<script>
+    // Function to handle SweetAlert2 alerts based on flash messages
+    function handleFlashMessages() {
+        // Check if the flash messages are present on the page
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                // Iterate through each flash message
+                {% for category, message in messages %}
+                    // Display SweetAlert2 alert based on flash message category
+                    Swal.fire({
+                        icon: '{{ category }}', // 'success', 'error', etc.
+                        title: '{{ message }}',
+                        timer: 2000,
+                        timerProgressBar: true,
+                        showConfirmButton: false,
+                        backdrop: 'rgba(0,0,0,0.5)', // Disable default backdrop
+                        allowOutsideClick: false, // Prevent clicking outside to close
+
+                        customClass: {
+                            popup: 'custom-popup-class', // Add a custom class for styling
+                        },
+                        onBeforeOpen: () => {
+                            // Set z-index directly on the SweetAlert2 modal
+                            document.querySelector('.custom-popup-class').style.zIndex = 10000;
+                        },
+                    });
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    }
+
+    // Call the function on page load
+    document.addEventListener('DOMContentLoaded', function () {
+        handleFlashMessages();
+    });
+</script>
 </body>
 </html>

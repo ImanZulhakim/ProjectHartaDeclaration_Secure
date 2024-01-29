@@ -156,17 +156,17 @@
                                            value="{{ row[4] }}">
                                 </label>
                             </div>
-<!-- Add a hidden input for the 'bil' parameter -->
-                <input type="hidden" name="bil" value="{{ row[0] }}">
+                            <!-- Add a hidden input for the 'bil' parameter -->
+                            <input type="hidden" name="bil" value="{{ row[0] }}">
 
                             <div class="form-group">
-                                <button class="btn btn-primary" type="submit">Update</button>
+
                             </div>
                         </form>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel
-                        </button>
+                        <button class="btn btn-primary" type="submit" onclick="validateAndSubmitUser('{{ row[0] }}')">Kemas Kini</button>
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Batal</button>
                     </div>
                 </div>
             </div>

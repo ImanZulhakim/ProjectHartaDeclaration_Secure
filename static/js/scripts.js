@@ -47,7 +47,7 @@ function deleteHarta(bil) {
 function deleteUser(bil) {
     Swal.fire({
         title: 'Adakah anda pasti?',
-        text: "Anda tidak akan dapat mengembalikan info penguuna!",
+        text: "Anda tidak akan dapat mengembalikan info pengguna!",
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#3085d6',
@@ -150,7 +150,19 @@ function saveData() {
 
 // Show draft data modal when preview button is clicked
 $("#draftModal").on("show.bs.modal", function () {
-    showDraftData();
+    if (validateRequiredFields()) {
+        showDraftData();
+    } else {
+        // Use SweetAlert instead of the normal alert
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Sila isi semua info yang diperlukan sebelum melihatnya.',
+        });
+
+        // Prevent the modal from being shown
+        $(this).modal("hide");
+    }
 });
 
 // Clear draft data modal when closed
@@ -160,6 +172,26 @@ $("#draftModal").on("hidden.bs.modal", function () {
     $("#draft_namaPasangan").text("");
     $("#draft_kategori").text("");
 });
+
+// Function to validate required fields
+function validateRequiredFields() {
+    var requiredFields = $("#draftForm [required]");
+    var emptyFields = [];
+
+    requiredFields.each(function () {
+        if ($(this).val().trim() === "") {
+            emptyFields.push($(this).attr("name"));
+        }
+    });
+
+    if (emptyFields.length > 0) {
+        return false;
+    } else {
+        return true;
+    }
+}
+
+
 
 
 const logoutUrl = "{{ logout_url }}";
@@ -269,3 +301,63 @@ function password_show_hide() {
 }
 
 
+function validateAndSubmit(rowId) {
+    var tahun = $("#modaledit" + rowId + " input[name='tahun']").val();
+    var failNo = $("#modaledit" + rowId + " input[name='failNo']").val();
+    var namaPasangan = $("#modaledit" + rowId + " input[name='namaPasangan']").val();
+    var jenis = $("#modaledit" + rowId + " select[name='jenis']").val();
+    var kategori = $("#modaledit" + rowId + " input[name='kategori']:checked").val();
+
+    if (tahun.trim() === "" || failNo.trim() === "" || namaPasangan.trim() === "" || jenis === undefined || kategori === undefined) {
+        // Use SweetAlert to display an error message
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Sila isi semua info sebelum anda kemas kini!',
+        });
+    } else {
+        // If all required fields are filled, submit the form
+        $("#modaledit" + rowId + " form").submit();
+    }
+}
+
+function validateAndSubmitUser(rowId) {
+    var email = $("#modaledit" + rowId + " input[name='email']").val();
+    var password = $("#modaledit" + rowId + " input[name='password']").val();
+    var name = $("#modaledit" + rowId + " input[name='name']").val();
+    var nric = $("#modaledit" + rowId + " input[name='nric']").val();
+
+    if (email.trim() === "" || password.trim() === "" || name.trim() === "" || nric.trim() === "") {
+        // Use SweetAlert to display an error message
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Sila isi semua info sebelum anda kemas kini!',
+        });
+    } else {
+        // If all required fields are filled, submit the form
+        $("#modaledit" + rowId + " form").submit();
+    }
+}
+
+function validateAndPreview() {
+    var tahun = $("#draftForm input[name='tahun']").val();
+    var failNo = $("#draftForm input[name='failNo']").val();
+    var namaPasangan = $("#draftForm input[name='namaPasangan']").val();
+    var jenis = $("#draftForm select[name='jenis']").val();
+    var kategori = $("#draftForm input[name='kategori']:checked").val();
+    var file = $("#draftForm input[name='file']").val();
+
+    if (tahun.trim() === "" || failNo.trim() === "" || namaPasangan.trim() === "" || jenis === null || kategori === undefined || file === "") {
+        // Use SweetAlert to display an error message
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Please fill in all fields before previewing.',
+        });
+    } else {
+        // If all required fields are filled, proceed with preview
+        showDraftData();
+        $("#draftModal").modal("show");
+    }
+}

@@ -40,7 +40,7 @@ def login():
     if request.method == 'POST':
         recaptcha_response = request.form.get('g-recaptcha-response')
         if not validate_recaptcha(recaptcha_response):
-            flash('reCAPTCHA verification failed. Please try again.')
+            flash('reCAPTCHA verification failed. Please try again.', 'error')
             return redirect(url_for('login'))
 
         email = request.form['email']
@@ -52,7 +52,7 @@ def login():
             session['name'] = ['name']
             session['admin'] = True
             session['email'] = 'admin'
-            flash('Admin login successful')
+            flash('Admin login successful', 'success')
             return redirect(url_for('main'))
 
         try:
@@ -64,16 +64,15 @@ def login():
 
             if curUser:
                 session['email'] = curUser[1]  # Assuming email is at index 1 in the user tuple
-                flash('User login successful')
+                flash('User login successful', 'success')
                 return redirect(url_for('main'))
             else:
-                flash('Invalid credentials or inactive account')
+                flash('Invalid credentials or inactive account', 'error')
 
         except Exception as e:
             logging.exception("Error during login")
-            flash('Login failed')
+            flash('Login failed', 'error')
 
-    # Ensure a response is returned for all execution paths
     return render_template('login.html')
 
 
@@ -98,14 +97,13 @@ def logout():
 def main():
     try:
         if 'email' not in session:
-            flash('You need to log in first!')
+            flash("Anda perlu daftar masuk dahulu!", 'error')
             return redirect(url_for('login'))
 
         email = session['email']
         if email == 'admin':
             # Admin can see all user harta information
             cur = connection.cursor()
-            # cur.execute("SELECT * FROM harta")
             cur.execute(
                 "SELECT harta.*, user.name FROM harta JOIN user ON harta.email = user.email")
             data = cur.fetchall()
@@ -121,7 +119,7 @@ def main():
 
     except Exception as e:
         logging.exception("Error fetching harta data:")
-        flash("An error occurred while fetching harta data.")
+        flash("Ralat semasa mengambilkan data harta!", 'error')
         return redirect(url_for('harta'))
 
 
@@ -129,15 +127,13 @@ def main():
 def harta():
     try:
         if 'email' not in session:
-            flash('You need to log in first.')
+            flash('Anda perlu daftar masuk dahulu!', 'error')
             return redirect(url_for('login'))
 
         email = session['email']
         if email == 'admin':
             # Admin can see all user harta information
-            # cur = mysql.cursor()
             cur = connection.cursor()
-            # cur.execute("SELECT * FROM harta")
             cur.execute(
                 "SELECT harta.*, user.name FROM harta JOIN user ON harta.email = user.email")
             hartaData = cur.fetchall()
@@ -146,9 +142,8 @@ def harta():
             userData = cur.fetchall()
 
             cur.close()
-            # Fetch jenis options from the database (replace this with your actual query)
+
             jenis_options = ["Tanah", "Kereta", "Motosikal"]
-            # Fetch kategori options from the database (replace this with your actual query)
             kategori_options = ["Sendiri", "Bersama"]
             name = session.get('name', 'User')
 
@@ -156,17 +151,14 @@ def harta():
                                    jenis_options=jenis_options,
                                    kategori_options=kategori_options)
 
-
         else:
             # Non-admin user can see their own harta information
-            # cur = mysql.cursor()
             cur = connection.cursor()
             cur.execute("SELECT * FROM harta WHERE email=%s", (email,))
             data = cur.fetchall()
             cur.close()
-            # Fetch jenis options from the database (replace this with your actual query)
+
             jenis_options = ["Tanah", "Kereta", "Motosikal"]
-            # Fetch kategori options from the database (replace this with your actual query)
             kategori_options = ["Sendiri", "Bersama"]
             name = session.get('name', 'User')
 
@@ -176,7 +168,7 @@ def harta():
 
     except Exception as e:
         logging.exception("Error fetching harta data:")
-        flash("An error occurred while fetching harta data.")
+        flash("Ralat semasa mengambilkan data harta!", 'error')
         return redirect(url_for('harta'))
 
 
@@ -217,6 +209,7 @@ def download_harta(bil):
         # Set the Content-Disposition header to suggest a filename for the browser to use
         response.headers['Content-Disposition'] = f'inline; filename={original_filename}'
 
+        flash("Fail berjaya dimuat turun!.", "success")
         # Return the response
         return response
 
@@ -229,63 +222,6 @@ def download_harta(bil):
 
 def allowed_file(filename):
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
-
-
-# @app.route('/insert_harta', methods=['POST'])
-# def insert_harta():
-#     try:
-#         email = session.get('email')
-#
-#         if email == 'admin':
-#             # Admin-specific logic here
-#             pass
-#         else:
-#             # User-specific logic here
-#             pass
-#
-#         # Common logic for both admin and user
-#         tahun = request.form['tahun']
-#         failNo = request.form['failNo']
-#         namaPasangan = request.form['namaPasangan']
-#         jenis = request.form['jenis']
-#         kategori = request.form['kategori']
-#
-#         if 'file' not in request.files:
-#             flash('No file part')
-#             return redirect(request.url)
-#
-#         file = request.files['file']
-#
-#         if file.filename == '':
-#             flash('No selected file')
-#             return redirect(request.url)
-#
-#         if file and allowed_file(file.filename):
-#             filename = secure_filename(file.filename)
-#             file_data = file.read()
-#
-#             # Use a context manager for the database cursor
-#             with connection.cursor() as cur:
-#                 cur.execute(
-#                     "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, last_modified_by, last_modified_at) VALUES "
-#                     "(%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())",
-#                     (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, email))
-#                 connection.commit()
-#
-#             flash("Harta Berjaya Diisytihar!")
-#             return redirect(url_for('harta'))
-#
-#         else:
-#             flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif")
-#             return redirect(request.url)
-#
-#     except Exception as e:
-#         logging.exception("An error occurred while processing the file upload for 'harta'.")
-#         logging.error("Error details: %s", str(e))
-#         logging.error("Tahun: %s, Nombor Fail: %s, namaPasangan=%s, Jenis: %s, Kategori: %s", tahun, failNo,
-#                       namaPasangan, jenis, kategori)
-#         flash("Harta Gagal Diisytihar! An error occurred.")
-#         return redirect(url_for('harta'))
 
 
 @app.route('/insert_harta', methods=['POST'])
@@ -325,7 +261,7 @@ def insert_harta():
                     (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, email))
                 connection.commit()
 
-                flash("Harta Berjaya Diisytihar!")
+                flash("Harta Berjaya Diisytihar!", "success")
                 return redirect(url_for('harta'))
 
             else:
@@ -364,11 +300,11 @@ def insert_harta():
                     (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, email))
                 connection.commit()
 
-                flash("Harta Berjaya Diisytihar!")
+                flash("Harta Berjaya Diisytihar!", "success")
                 return redirect(url_for('harta'))
 
             else:
-                flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif")
+                flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif", "error")
                 return redirect(request.url)
 
 
@@ -377,7 +313,7 @@ def insert_harta():
         logging.error("Error details: %s", str(e))
         logging.error("Tahun: %s, Nombor Fail: %s, namaPasangan=%s, Jenis: %s, Kategori: %s", tahun, failNo,
                       namaPasangan, jenis, kategori)
-        flash("Harta Gagal Diisytihar! An error occurred.")
+        flash("Harta Gagal Diisytihar! Ralat berlaku.", "error")
         return redirect(url_for('harta'))
 
 
@@ -411,13 +347,13 @@ def update_harta():
                 "UPDATE harta SET tahun=%s, failNo=%s, namaPasangan=%s, jenis=%s, kategori=%s, "
                 "last_modified_by=%s, last_modified_at=NOW() WHERE bil=%s",
                 (tahun, failNo, namaPasangan, jenis, kategori, email, bil))
-            flash("Harta Berjaya Dikemas Kini!")
+            flash("Harta Berjaya Dikemas Kini!", "success")
             connection.commit()
             return redirect(url_for('harta'))
         except Exception as e:
             logging.exception("An error occurred while updating 'harta'.")
             logging.error("Error details: %s", str(e))
-            flash("Harta Gagal Dikemas Kini! An error occurred.")
+            flash("Harta Gagal Dikemas Kini! Ralat Berlaku.","error")
             return redirect(url_for('harta'))
 
 
@@ -437,12 +373,11 @@ def delete_harta(bil):
             cur.execute("DELETE FROM harta WHERE bil=%s AND email=%s", (bil, email))
 
         connection.commit()
-        flash("Harta Berjaya Dipadam!")
         return redirect(url_for('harta'))
 
     except Exception as e:
         logging.exception("Harta Gagal Dipadam!")
-        flash("Ralat Semasa Memadam Harta!")
+        flash("Ralat Semasa Memadam Harta!","error")
         return redirect(url_for('harta'))
 
 
@@ -450,7 +385,7 @@ def delete_harta(bil):
 def user():
     try:
         if 'email' not in session:
-            flash('You need to sign up first.')
+            flash("Anda perlu daftar masuk dahulu!", "error")
             return redirect(url_for('login'))
 
         email = session['email']
@@ -468,7 +403,7 @@ def user():
 
     except Exception as e:
         logging.exception("Error fetching harta data:")
-        flash("An error occurred while fetching harta data.")
+        flash("Ralat semasa memaparkan data pengguna!", "error")
         return redirect(url_for('user'))
 
 
@@ -488,13 +423,13 @@ def insert_user():
             (email, password, name, nric, email))
         connection.commit()
 
-        flash("Pengguna Berjaya DItambah!")
+        flash("Pengguna Berjaya Ditambah!","success")
         return redirect(url_for('user'))
 
     except Exception as e:
         logging.exception("An error occurred while processing the file upload for 'user'.")
         logging.error("Error details: %s", str(e))
-        flash("Pengguna gagal ditambah!")
+        flash("Pengguna gagal ditambah!", "error")
         return redirect(url_for('user'))
 
 
@@ -523,13 +458,13 @@ def update_user():
                 "last_modified_by=%s, last_modified_at=NOW() WHERE bil=%s",
                 (email, password, name, nric, updater_email, bil))
 
-            flash("Maklumat Pengguna Berjaya DiKemas Kini!")
+            flash("Maklumat Pengguna Berjaya DiKemas Kini!","success")
             connection.commit()
             return redirect(url_for('user'))
         except Exception as e:
             logging.exception("An error occurred while updating 'user'.")
             logging.error("Error details: %s", str(e))
-            flash("Maklumat Pengguna Gagal Dikemas Kini! An error occurred.")
+            flash("Maklumat Pengguna Gagal Dikemas Kini! Ralat berlaku!.", "error")
             return redirect(url_for('user'))
 
 
@@ -542,7 +477,7 @@ def delete_user(bil):
         cur.execute("SELECT email FROM user WHERE bil = %s", (bil,))
         user_data = cur.fetchone()
         if user_data is None:
-            flash("User not found!")
+            flash("Pengguna Tidak Dijumpai!", "error")
             return redirect(url_for('user'))
 
         user_email = user_data[0]
@@ -554,12 +489,12 @@ def delete_user(bil):
         cur.execute("UPDATE user SET is_active = FALSE WHERE bil = %s", (bil,))
 
         connection.commit()
-        flash("Pengguna dan harta berkenaan telah Berjaya Dipadam (Deactivated)!")
+        flash("Pengguna dan harta berkenaan telah Berjaya Dipadam (Deactivated)!", "success")
         return redirect(url_for('user'))
 
     except Exception as e:
         logging.exception("Pengguna Gagal Dipadam (Failed to Deactivate)!")
-        flash("Ralat Semasa Memadam (Deactivating) Pengguna dan Harta Berkenaan!")
+        flash("Ralat Semasa Memadam (Deactivating) Pengguna dan Harta Berkenaan!","error")
         return redirect(url_for('user'))
 
 
@@ -571,7 +506,6 @@ def export_users():
         cur.execute("SELECT bil, email, password, name, nric, is_active, last_modified_by, last_modified_at FROM user")
         users = cur.fetchall()
         cur.close()
-
         # Convert to DataFrame for easier Excel export
         df = pd.DataFrame(users, columns=['Bil', 'Email', 'Password', 'Nama Pengguna', 'Nombor IC', 'IsActive', 'Modifikasi terakhir oleh',
                                           'Modifikasi terakhir pada'])
@@ -583,7 +517,8 @@ def export_users():
 
     except Exception as e:
         logging.exception("An error occurred during user export:")
-        flash(f"An error occurred during user export: {str(e)}")
+        logging.error("Error details: %s", str(e))
+        flash(f"Ralat semasa mengeksport data pengguna!", "error")
         return redirect(url_for('user'))
 
 
@@ -591,14 +526,14 @@ def export_users():
 def export_harta():
     try:
         cur = connection.cursor()
-        query = "SELECT bil, tahun, failNo, namaPasangan, jenis, kategori, filename, email, is_active ,last_modified_by, last_modified_at FROM harta"
+        query = "SELECT bil, tahun, failNo, namaPasangan, jenis, kategori, filename, email, last_modified_by, last_modified_at FROM harta"
         cur.execute(query)
         data = cur.fetchall()
         cur.close()
-
+        flash("Data harta berjaya di eksport!", "success")
         # Convert to DataFrame
         df = pd.DataFrame(data, columns=['Bil', 'Tahun', 'Nombor Fail', 'Nama Pasangan', 'Jenis Perisytiharan Harta',
-                                         'Kategori Perisytiharan Harta', 'Fail Sokongan', 'Email', 'Aktif',
+                                         'Kategori Perisytiharan Harta', 'Fail Sokongan', 'Email',
                                          'Last Modified By', 'Last Modified At'])
 
         # Create an in-memory Excel file
@@ -617,7 +552,7 @@ def export_harta():
     except Exception as e:
         logging.exception("An error occurred during harta export:")
         logging.error("Error details: %s", str(e))
-        flash("An error occurred during harta export.")
+        flash(f"Ralat semasa mengeksport data harta!", "error")
         return redirect(url_for('harta'))
 
 
@@ -628,7 +563,7 @@ def profile():
         cur = connection.cursor()
         if request.method == "POST":
             if 'email' not in session:
-                flash('You need to log in first.')
+                flash("Anda perlu daftar masuk dahulu!", "error")
                 return redirect(url_for('login'))
 
             # Non-admin user can see their own profile information
@@ -638,6 +573,7 @@ def profile():
             # Update the user's data in the database
             cur.execute("UPDATE user SET password=%s WHERE email=%s", (password, email))
             connection.commit()
+            flash("Kata Laluan berjaya ditukar!", "success")
 
         # Fetch the user's data from the database
         cur.execute("SELECT * FROM user WHERE email=%s", (email,))
@@ -648,7 +584,7 @@ def profile():
 
     except Exception as e:
         logging.exception("Error fetching harta data:")
-        flash("An error occurred while fetching harta data.")
+        flash("Ralat semasa mengambilkan data pengguna!", "error")
         return redirect(url_for('login'))
 
 
