@@ -24,7 +24,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'root',
+    'password': 'Shazlyn287969@',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -227,6 +227,10 @@ def insert_harta():
             kategori = request.form['kategori']
             file = request.files['file']
 
+            if 'admin' in session and session['admin']:
+                # Admin is updating the user, use admin's email as the last modifier
+                updater_email = 'admin'
+
             # Check if the post-request has the file part
             if 'file' not in request.files:
                 flash('No file part')
@@ -246,7 +250,7 @@ def insert_harta():
                 cur.execute(
                     "INSERT INTO harta (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, last_modified_by, last_modified_at) VALUES "
                     "(%s, %s, %s, %s, %s, %s, %s, %s, %s, NOW())",
-                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, email))
+                    (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, updater_email))
                 connection.commit()
 
                 flash("Harta Berjaya Diisytihar!", "success")
@@ -428,12 +432,19 @@ def insert_user():
         name = request.form['name']
         nric = request.form['nric']
 
+        updater_email = session['email']
+
+        # Check if the user is an admin
+        if 'admin' in session and session['admin']:
+            # Admin is updating the user, use admin's email as the last modifier
+            updater_email = 'admin'
+
         # Insert user into the database
         cur = connection.cursor()
         cur.execute(
             "INSERT INTO user (email, password, name, nric, last_modified_by, last_modified_at) VALUES "
             "(%s, %s, %s, %s, %s, NOW())",
-            (email, password, name, nric, email))
+            (email, password, name, nric, updater_email))
         connection.commit()
 
         flash("Pengguna Berjaya Ditambah!", "success")
@@ -584,7 +595,9 @@ def profile():
             password = request.form.get("password")
 
             # Update the user's data in the database
-            cur.execute("UPDATE user SET password=%s WHERE email=%s", (password, email))
+            cur.execute(
+                "UPDATE user SET password=%s, last_modified_by=%s, last_modified_at=NOW() WHERE email=%s",
+                (password, email, email))
             connection.commit()
             flash("Kata Laluan berjaya ditukar!", "success")
 
