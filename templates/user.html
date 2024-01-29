@@ -23,7 +23,7 @@
                     <div class="well col-md-12">
                         <h2>Senarai Pengguna
                             <a href="{{ url_for('export_users') }}" class="btn btn-info pull-right" title="Export to Excel">
-                                <i class="fa fa-file-excel-o"></i> Export
+                                <i class="fa fa-file-excel-o"></i> Eksport
                             </a>
 
                             <button type="button" class="btn btn-success pull-right" data-toggle="modal" data-target="#myModal">Tambah
@@ -32,11 +32,11 @@
                         <table class="table table-striped">
                             <tr>
                                 <th>Bil</th>
-                                <th>Email</th>
-                                <th>Password</th>
+                                <th>Emel</th>
+                                <th>Kata Laluan</th>
                                 <th>Nama Pengguna</th>
                                 <th>Nombor IC</th>
-                                <th>Modifikasi oleh</th>
+                                <th>Modifikasi Oleh</th>
                                 <th>Modifikasi Pada</th>
                                 <th></th>
                             </tr>
@@ -83,11 +83,11 @@
                     <form id="draftForm" method="POST" action="{{ url_for('insert_user') }}"
                           enctype="multipart/form-data">
                         <div class="form-group">
-                            <label>Email:</label>
+                            <label>Emel:</label>
                             <input type="text" class="form-control" name="email" required>
                         </div>
                         <div class="form-group">
-                            <label>Password:</label>
+                            <label>Kata Laluan:</label>
                             <input type="text" class="form-control" name="password" required>
                         </div>
                         <div class="form-group">
@@ -126,14 +126,14 @@
                     <div class="modal-body">
                         <form action="{{ url_for('update_user') }}" method="POST">
                             <div class="form-group">
-                                <label>Email:</label>
+                                <label>Emel:</label>
                                 <label>
                                     <input type="text" class="form-control" name="email"
                                            value="{{ row[1] }}">
                                 </label>
                             </div>
                             <div class="form-group">
-                                <label>Password:</label>
+                                <label>Kata Laluan:</label>
                                 <label>
                                     <input type="text" class="form-control" name="password"
                                            value="{{ row[2] }}">
@@ -182,11 +182,11 @@
                 </div>
                 <div class="modal-body">
                     <div class="form-group">
-                        <label>Email:</label>
+                        <label>Emel:</label>
                         <p id="draft_email"></p>
                     </div>
                     <div class="form-group">
-                        <label>Password:</label>
+                        <label>Kata Laluan:</label>
                         <p id="draft_password"></p>
                     </div>
                     <div class="form-group">

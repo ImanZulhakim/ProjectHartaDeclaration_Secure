@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, session, flash, redirect, url_for, make_response
 import logging
 import pymysql
+import openpyxl
 import requests
 from werkzeug.utils import secure_filename
 from datetime import timedelta
@@ -23,7 +24,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'root',
+    'password': 'Lyra@0734',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
@@ -48,7 +49,7 @@ def login():
 
         logging.debug(f"Email: {email}, Password: {password}")
 
-        if email == 'admin' and password == 'admin':
+        if email == 'admin' and password == 'System@dmin02':
             session['name'] = ['name']
             session['admin'] = True
             session['email'] = 'admin'
