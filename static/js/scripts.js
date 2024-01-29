@@ -354,7 +354,7 @@ function validateAndPreview() {
         Swal.fire({
             icon: 'error',
             title: 'Oops...',
-            text: 'Please fill in all fields before previewing.',
+            text: 'Sila isi semua info yang diperlukan sebelum melihatnya.',
         });
     } else {
         // If all required fields are filled, proceed with preview
