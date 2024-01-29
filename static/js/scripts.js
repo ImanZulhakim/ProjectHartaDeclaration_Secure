@@ -154,6 +154,9 @@ function saveData() {
 $("#draftModal").on("show.bs.modal", function () {
     if (validateRequiredFields()) {
         showDraftData();
+        showDraftAdminHartaData();
+        showDraftDataPengguna();
+
     } else {
         // Use SweetAlert instead of the normal alert
         Swal.fire({
@@ -317,6 +320,10 @@ function validateAndSubmit(rowId) {
             text: 'Sila isi semua info sebelum anda kemas kini!',
         });
     } else {
+
+        if (!validateYearUpdate(rowId)) {
+            return;
+        }
         // If all required fields are filled, submit the form
         $("#modaledit" + rowId + " form").submit();
     }
@@ -357,8 +364,69 @@ function validateAndPreview() {
             text: 'Sila isi semua info yang diperlukan sebelum melihatnya.',
         });
     } else {
+        if (!validateYear()) {
+            return;
+        }
         // If all required fields are filled, proceed with preview
         showDraftData();
         $("#draftModal").modal("show");
     }
+}
+
+function validateAndPreviewAdmin() {
+    var email = $("#draftForm select[name='email']").val();
+    var tahun = $("#draftForm input[name='tahun']").val();
+    var failNo = $("#draftForm input[name='failNo']").val();
+    var namaPasangan = $("#draftForm input[name='namaPasangan']").val();
+    var jenis = $("#draftForm select[name='jenis']").val();
+    var kategori = $("#draftForm input[name='kategori']:checked").val();
+    var file = $("#draftForm input[name='file']").val();
+
+    if (email === null || tahun.trim() === "" || failNo.trim() === "" || namaPasangan.trim() === "" || jenis === null || kategori === undefined || file === "") {
+        // Use SweetAlert to display an error message
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Sila isi semua info yang diperlukan sebelum melihatnya.',
+        });
+    } else {
+        if (!validateYear()) {
+            return;
+        }
+        // If all required fields are filled, proceed with preview
+        showDraftAdminHartaData();
+        $("#draftModal").modal("show");
+    }
+}
+
+function validateYear() {
+    var yearInput = $("#draftForm input[name='tahun']").val();
+    var isValidYear = /^\d{4}$/.test(yearInput);
+
+    if (!isValidYear) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Sila masukkan angka 4-digit untuk tahun (e.g. 2024).',
+        });
+        return false;
+    }
+
+    return true;
+}
+
+function validateYearUpdate(rowId) {
+    var yearInput = $("#modaledit" + rowId + " input[name='tahun']").val();
+    var isValidYear = /^\d{4}$/.test(yearInput);
+
+    if (!isValidYear) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Sila masukkan angka 4-digit untuk tahun (e.g. 2024).',
+        });
+        return false;
+    }
+
+    return true;
 }

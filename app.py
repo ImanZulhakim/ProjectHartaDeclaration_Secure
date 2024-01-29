@@ -24,7 +24,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'Shazlyn287969@',
+    'password': 'root',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
