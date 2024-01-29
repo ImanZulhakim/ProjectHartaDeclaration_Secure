@@ -1,8 +1,8 @@
 from flask import Flask, render_template, request, session, flash, redirect, url_for, make_response
 import logging
 import pymysql
-import openpyxl
 import requests
+import openpyxl
 from werkzeug.utils import secure_filename
 from datetime import timedelta
 from flask import send_file
@@ -24,7 +24,7 @@ app.config['SESSION_COOKIE_HTTPONLY'] = True
 # Configure database connection
 config = {
     'user': 'root',
-    'password': 'Lyra@0734',
+    'password': 'Shazlyn287969@',
     'port': 3306,
     'host': 'localhost',
     'database': 'harta'
