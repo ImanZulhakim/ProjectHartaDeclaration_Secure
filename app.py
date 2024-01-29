@@ -140,16 +140,10 @@ def harta():
 
             cur.execute("SELECT * FROM user WHERE is_active = TRUE")
             userData = cur.fetchall()
-
             cur.close()
-
-            jenis_options = ["Tanah", "Kereta", "Motosikal"]
-            kategori_options = ["Sendiri", "Bersama"]
             name = session.get('name', 'User')
 
-            return render_template('harta_admin.html', harta=hartaData, user=userData, username=name,
-                                   jenis_options=jenis_options,
-                                   kategori_options=kategori_options)
+            return render_template('harta_admin.html', harta=hartaData, user=userData, username=name)
 
         else:
             # Non-admin user can see their own harta information
@@ -157,14 +151,9 @@ def harta():
             cur.execute("SELECT * FROM harta WHERE email=%s", (email,))
             data = cur.fetchall()
             cur.close()
-
-            jenis_options = ["Tanah", "Kereta", "Motosikal"]
-            kategori_options = ["Sendiri", "Bersama"]
             name = session.get('name', 'User')
 
-            return render_template('harta_user.html', harta=data, name=name,
-                                   jenis_options=jenis_options,
-                                   kategori_options=kategori_options)
+            return render_template('harta_user.html', harta=data, name=name)
 
     except Exception as e:
         logging.exception("Error fetching harta data:")
@@ -209,7 +198,6 @@ def download_harta(bil):
         # Set the Content-Disposition header to suggest a filename for the browser to use
         response.headers['Content-Disposition'] = f'inline; filename={original_filename}'
 
-        flash("Fail berjaya dimuat turun!.", "success")
         # Return the response
         return response
 
@@ -236,13 +224,12 @@ def insert_harta():
             namaPasangan = request.form['namaPasangan']
             jenis = request.form['jenis']
             kategori = request.form['kategori']
+            file = request.files['file']
 
             # Check if the post-request has the file part
             if 'file' not in request.files:
                 flash('No file part')
                 return redirect(request.url)
-
-            file = request.files['file']
 
             # If a user does not select file, the browser also submits an empty part without filename
             if file.filename == '':
@@ -341,19 +328,44 @@ def update_harta():
             # Get the email of the user who is making the update
             email = session['email']
 
-            # Update the harta entry and set last modification details
+            # Check if the post-request has the file part
+            if 'file' in request.files:
+                file = request.files['file']
+
+                # If a user does not select file, the browser also submits an empty part without filename
+                if file.filename != '':
+                    if allowed_file(file.filename):
+                        filename = secure_filename(file.filename)
+                        file_data = file.read()
+
+                        # Update the harta entry and set last modification details
+                        cur = connection.cursor()
+                        cur.execute(
+                            "UPDATE harta SET tahun=%s, failNo=%s, namaPasangan=%s, jenis=%s, kategori=%s, file_data=%s, filename=%s,last_modified_by=%s, "
+                            "last_modified_at=NOW() WHERE bil=%s",
+                            (tahun, failNo, namaPasangan, jenis, kategori, file_data, filename, email, bil))
+                        flash("Harta Berjaya Dikemas Kini!", "success")
+                        connection.commit()
+                        return redirect(url_for('harta'))
+                    else:
+                        flash("Invalid file type. Allowed file types are: pdf, png, jpg, jpeg, gif", "error")
+                        return redirect(request.url)
+
+            # If no file is provided or the file is not valid, proceed with updating other data
+            # Update the harta entry without modifying the file
             cur = connection.cursor()
             cur.execute(
-                "UPDATE harta SET tahun=%s, failNo=%s, namaPasangan=%s, jenis=%s, kategori=%s, "
-                "last_modified_by=%s, last_modified_at=NOW() WHERE bil=%s",
+                "UPDATE harta SET tahun=%s, failNo=%s, namaPasangan=%s, jenis=%s, kategori=%s, last_modified_by=%s, "
+                "last_modified_at=NOW() WHERE bil=%s",
                 (tahun, failNo, namaPasangan, jenis, kategori, email, bil))
             flash("Harta Berjaya Dikemas Kini!", "success")
             connection.commit()
             return redirect(url_for('harta'))
+
         except Exception as e:
             logging.exception("An error occurred while updating 'harta'.")
             logging.error("Error details: %s", str(e))
-            flash("Harta Gagal Dikemas Kini! Ralat Berlaku.","error")
+            flash("Harta Gagal Dikemas Kini! Ralat Berlaku.", "error")
             return redirect(url_for('harta'))
 
 
@@ -377,7 +389,7 @@ def delete_harta(bil):
 
     except Exception as e:
         logging.exception("Harta Gagal Dipadam!")
-        flash("Ralat Semasa Memadam Harta!","error")
+        flash("Ralat Semasa Memadam Harta!", "error")
         return redirect(url_for('harta'))
 
 
@@ -423,7 +435,7 @@ def insert_user():
             (email, password, name, nric, email))
         connection.commit()
 
-        flash("Pengguna Berjaya Ditambah!","success")
+        flash("Pengguna Berjaya Ditambah!", "success")
         return redirect(url_for('user'))
 
     except Exception as e:
@@ -458,7 +470,7 @@ def update_user():
                 "last_modified_by=%s, last_modified_at=NOW() WHERE bil=%s",
                 (email, password, name, nric, updater_email, bil))
 
-            flash("Maklumat Pengguna Berjaya DiKemas Kini!","success")
+            flash("Maklumat Pengguna Berjaya DiKemas Kini!", "success")
             connection.commit()
             return redirect(url_for('user'))
         except Exception as e:
@@ -494,7 +506,7 @@ def delete_user(bil):
 
     except Exception as e:
         logging.exception("Pengguna Gagal Dipadam (Failed to Deactivate)!")
-        flash("Ralat Semasa Memadam (Deactivating) Pengguna dan Harta Berkenaan!","error")
+        flash("Ralat Semasa Memadam (Deactivating) Pengguna dan Harta Berkenaan!", "error")
         return redirect(url_for('user'))
 
 

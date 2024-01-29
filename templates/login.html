@@ -123,10 +123,6 @@
 
     <button type="submit">Login</button>
 
-    {#    <label>#}
-    {#        <input type="checkbox" checked="checked" name="remember"> Remember me#}
-    {#    </label>#}
-
 </form>
 
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11.0.20/dist/sweetalert2.all.min.js"></script>
@@ -143,7 +139,7 @@
                     Swal.fire({
                         icon: '{{ category }}', // 'success', 'error', etc.
                         title: '{{ message }}',
-                        timer: 2000,
+                        timer: 1000,
                         timerProgressBar: true,
                         showConfirmButton: false,
                         backdrop: 'rgba(0,0,0,0.5)', // Disable default backdrop

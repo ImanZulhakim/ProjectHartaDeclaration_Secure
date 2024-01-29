@@ -52,7 +52,7 @@
                                            class="btn btn-success btn-xs" download>Muat turun
                                         </a>
                                         <a href="/update_harta/{{ row[0] }}" class="btn btn-warning btn-xs"
-                                           data-toggle="modal" data-target="#modaledit{{ row[0] }}">Edit
+                                           data-toggle="modal" data-target="#modaledit{{ row[0] }}">Kemas Kini
                                         </a>
                                         <button class="btn btn-danger btn-xs" onclick="deleteHarta({{ row[0] }})">
                                             Padam
@@ -83,7 +83,7 @@
                         <div class="form-group">
                             <label for="selectEmail">Pilih Email Pengguna:</label>
                             <select id="selectEmail" name="email">
-                                <option value="" selected disabled>Select an email</option>
+                                <option value="" selected disabled>Pilih Email</option>
                                 {% for row in user %}
                                     <option value="{{ row[1] }}">{{ row[1] }}</option>
                                 {% endfor %}
@@ -133,7 +133,7 @@
                         </div>
 
                         <div class="form-group">
-                            <label for="file">File</label>
+                            <label for="file">Fail</label>
                             <input id="file" name="file" type="file" required
                                    onchange="updateViewFileLink()"/>
                         </div>
@@ -141,10 +141,10 @@
                 </div>
                 <div class="modal-footer">
                     <button class="btn btn-primary" type="button" data-toggle="modal"
-                                    data-target="#draftModal"
-                                    onclick="showDraftAdminHartaData()">
-                                Preview Rekod
-                            </button>
+                            data-target="#draftModal"
+                            onclick="showDraftAdminHartaData()">
+                        Preview Rekod
+                    </button>
                     <button type="button" class="btn btn-default" data-dismiss="modal">Batal
                     </button>
                 </div>
@@ -163,7 +163,7 @@
                         <h4 class="modal-title">Kemas Kini Data</h4>
                     </div>
                     <div class="modal-body">
-                        <form action="{{ url_for('update_harta') }}" method="POST">
+                        <form action="{{ url_for('update_harta') }}" method="POST" enctype="multipart/form-data">
                             <div class="form-group">
                                 <input type="hidden" name="bil" value="{{ row[0] }}" required>
                             </div>
@@ -190,30 +190,31 @@
                             </div>
                             <div class="form-group">
                                 <label>Jenis Perisytiharan:</label>
-                                <select class="form-control" name="jenis" required>
-                                    {% for option in jenis_options %}
-                                        <option value="{{ option }}"
-                                                {% if option == row[0] %}selected{% endif %}>{{ option }}</option>
-                                    {% endfor %}
-                                </select>
+                                <label>
+                                    <select class="form-control" name="jenis" required>
+                                        <option value="Tanah" {% if row[4] == 'Tanah' %}selected{% endif %}>Tanah</option>
+                                        <option value="Kereta" {% if row[4] == 'Kereta' %}selected{% endif %}>Kereta</option>
+                                        <option value="Motosikal" {% if row[4] == 'Motosikal' %}selected{% endif %}>Motosikal</option>
+                                    </select>
+                                </label>
                             </div>
                             <div class="form-group">
                                 <label>Kategori Perisytiharan: </label>
-                                {% for option in kategori_options %}
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="kategori"
-                                               id="{{ option|lower }}"
-                                               value="{{ option }}"
-                                               {% if option == row[1] %}checked{% endif %} required>
-                                        <label class="form-check-label" for="{{ option|lower }}">
-                                            {{ option }}
-                                        </label>
-                                    </div>
-                                {% endfor %}
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="kategori"
+                                           id="sendiri" value="Sendiri" {% if row[5] == 'Sendiri' %}checked{% endif %} required>
+                                    <label class="form-check-label" for="sendiri">Sendiri</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="radio" name="kategori" id="bersama" value="Bersama"
+                                           {% if row[5] == 'Bersama' %}checked{% endif %} required>
+                                    <label class="form-check-label" for="bersama">Bersama</label>
+                                </div>
                             </div>
                             <div class="form-group">
-                                <label for="draft_file">File:</label>
-                                <a href="#" id="draft_file" target="_blank" >View File</a>
+                                <label for="draft_file">Fail:</label>
+                                <p>{{ row[7] }}</p>
+                                <input id="file" name="file" type="file" required onchange="updateViewFileLink()"/>
                             </div>
                         </form>
                     </div>
@@ -264,9 +265,8 @@
                         <p id="draft_kategori"></p>
                     </div>
                     <div class="form-group">
-                        <label for="draft_file">File:</label>
-                        <a href="#" id="draft_file" target="_blank" onclick="previewFile()">View
-                            File</a>
+                        <label for="draft_file">Fail:</label>
+                        <a href="#" id="draft_file" target="_blank" onclick="previewFile()">Lihat Fail</a>
                     </div>
                 </div>
                 <div class="modal-footer">

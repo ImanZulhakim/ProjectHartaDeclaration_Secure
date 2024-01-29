@@ -119,6 +119,7 @@ function updateViewFileLink() {
     }
 }
 
+
 // Function to preview the file before submitting
 function previewFile() {
     var fileInput = document.getElementById("file");
@@ -136,6 +137,7 @@ function previewFile() {
         alert("No file selected for preview.");
     }
 }
+
 
 // Function to save data to the database
 function saveData() {
@@ -190,8 +192,6 @@ function validateRequiredFields() {
         return true;
     }
 }
-
-
 
 
 const logoutUrl = "{{ logout_url }}";
@@ -307,6 +307,7 @@ function validateAndSubmit(rowId) {
     var namaPasangan = $("#modaledit" + rowId + " input[name='namaPasangan']").val();
     var jenis = $("#modaledit" + rowId + " select[name='jenis']").val();
     var kategori = $("#modaledit" + rowId + " input[name='kategori']:checked").val();
+    var file = $("#modaledit" + rowId + " input[name='file']").val();
 
     if (tahun.trim() === "" || failNo.trim() === "" || namaPasangan.trim() === "" || jenis === undefined || kategori === undefined) {
         // Use SweetAlert to display an error message
