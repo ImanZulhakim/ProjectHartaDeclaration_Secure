@@ -49,7 +49,7 @@
                                     <td>{{ row[-2] }}</td>
                                     <td>
                                         <a href="{{ url_for('download_harta', bil=row[0]) }}"
-                                           class="btn btn-success btn-xs" download>Muat turun
+                                           class="btn btn-success btn-xs" download>Muat Turun
                                         </a>
                                         <a href="/update_harta/{{ row[0] }}" class="btn btn-warning btn-xs"
                                            data-toggle="modal" data-target="#modaledit{{ row[0] }}">Kemas Kini
@@ -81,7 +81,7 @@
                     <form id="draftForm" method="POST" action="{{ url_for('insert_harta') }}"
                           enctype="multipart/form-data">
                         <div class="form-group">
-                            <label for="selectEmail">Pilih Email Pengguna:</label>
+                            <label for="selectEmail">Pilih Emel Pengguna:</label>
                             <select id="selectEmail" name="email">
                                 <option value="" selected disabled>Pilih Email</option>
                                 {% for row in user %}
@@ -95,7 +95,7 @@
                             <p id="username"></p>
                         </div>
                         <div class="form-group">
-                            <label>Year:</label>
+                            <label>Tahun:</label>
                             <input type="text" class="form-control" name="tahun" required>
                         </div>
                         <div class="form-group">
