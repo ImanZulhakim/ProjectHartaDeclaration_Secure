@@ -399,6 +399,26 @@ function validateAndPreviewAdmin() {
     }
 }
 
+function validateAndPreviewUser() {
+    var email = $("#draftForm select[name='email']").val();
+    var password = $("#draftForm input[name='password']").val();
+    var name = $("#draftForm input[name='name']").val();
+    var nric = $("#draftForm input[name='nric']").val();
+
+    if (email === null || password.trim() === "" || name.trim() === "" || nric.trim() === "") {
+        // Use SweetAlert to display an error message
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Sila isi semua info yang diperlukan sebelum melihatnya.',
+        });
+    } else {
+        // If all required fields are filled, proceed with preview
+        showDraftDataPengguna();
+        $("#draftModal").modal("show");
+    }
+}
+
 function validateYear() {
     var yearInput = $("#draftForm input[name='tahun']").val();
     var isValidYear = /^\d{4}$/.test(yearInput);
